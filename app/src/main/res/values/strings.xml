@@ -1,38 +1,49 @@
-<resources>
+<resources xml:space="preserve">
+    <!-- Application Name -->
     <string name="app_name">Algorithm Visualizer</string>
 
+    <!-- Detailed Explanation for Bubble Sort with a formatted Kotlin code example -->
     <string name="explanation_text">
         <![CDATA[
-        What is Bubble Sort?
+What is Bubble Sort?
 
-        Bubble Sort is a simple sorting algorithm that works by repeatedly comparing
-        adjacent elements in a list and swapping them if they are in the wrong order.
+Bubble Sort is a simple sorting algorithm that works by repeatedly comparing
+adjacent elements in a list and swapping them if they are in the wrong order.
 
-        Imagine you have a row of numbers and you want to sort them from smallest to largest.
-        Bubble Sort will look at the first two numbers, swap them if needed, then move on
-        to the next pair, and so on. With each pass, the largest unsorted number "bubbles"
-        up to its correct position.
+Imagine you have a row of numbers and you want to sort them from smallest to largest.
+Bubble Sort will look at the first two numbers, swap them if needed, then move on
+to the next pair, and so on. With each pass, the largest unsorted number "bubbles"
+up to its correct position.
 
-        Here is an example in Kotlin:
+Here is an example in Kotlin:\n\n
 
-        fun bubbleSort(arr: MutableList<Int>) {
-            for (i in 0 until arr.size) {
-                for (j in 0 until arr.size - i - 1) {
-                    if (arr[j] > arr[j + 1]) {
-                        val temp = arr[j]
-                        arr[j] = arr[j + 1]
-                        arr[j + 1] = temp
-                    }
-                }
-            }
-        }
+fun bubbleSort(arr: MutableList<Int>) {\n
+\u00A0    for (i in 0 until arr.size) {\n
+\u00A0\u00A0        for (j in 0 until arr.size - i - 1) {\n
+\u00A0\u00A0\u00A0            if (arr[j] > arr[j + 1]) {\n
+\u00A0\u00A0\u00A0\u00A0               val temp = arr[j]\n
+\u00A0\u00A0\u00A0\u00A0               arr[j] = arr[j + 1]\n
+\u00A0\u00A0\u00A0\u00A0                arr[j + 1] = temp\n
+\u00A0\u00A0 \u00A0\u00A0           }\n
+\u00A0\u00A0\u00A0        }\n
+\u00A0\u00A0}\n
+}\n\n
 
-        In this visualizer, each bar represents a number. The numbers are displayed on the bars,
-        and the two bars being compared are highlighted in a different color.
+In this visualizer, each bar represents a number. The numbers are displayed on the bars,
+and the two bars being compared are highlighted in a different color.
 
-        Enjoy learning and have fun with Bubble Sort!
+Enjoy learning and have fun with Bubble Sort!
         ]]>
     </string>
+
+    <!-- Algorithm Names -->
+    <string name="bubble_sort">Bubble Sort</string>
+    <string name="selection_sort">Selection Sort</string>
+    <string name="insertion_sort">Insertion Sort</string>
+    <string name="merge_sort">Merge Sort</string>
+    <string name="quick_sort">Quick Sort</string>
+
+    <!-- Control Button Labels -->
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>

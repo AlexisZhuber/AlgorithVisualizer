@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -26,24 +27,16 @@ import com.example.algorithmvisualizer.algorithm.BubbleSortStep
 import com.example.algorithmvisualizer.algorithm.generateBubbleSortSteps
 import com.example.algorithmvisualizer.algorithm.resetArray
 import com.example.algorithmvisualizer.ui.theme.DarkGray
-import com.example.algorithmvisualizer.ui.theme.Gray
 import com.example.algorithmvisualizer.ui.theme.LightGray
 import com.example.algorithmvisualizer.ui.theme.Primary
 import com.example.algorithmvisualizer.ui.theme.Secondary
+import com.example.algorithmvisualizer.ui.theme.TextColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * BubbleSortView visualizes the Bubble Sort algorithm with:
- * - A title and detailed explanation (inside a scrollable container) that includes
- *   a Kotlin code example.
- * - A graphical representation where each bar displays its numerical value.
- * - Interactive controls (Play/Pause, Next, Previous, Reset) arranged like a music player,
- *   using custom icon buttons from the drawable folder.
- */
 @Composable
 fun BubbleSortView() {
-    // Now we only want 10 columns instead of 30.
+    // We only want 10 columns.
     val arraySize = 10
 
     // State containing the values of the array.
@@ -58,14 +51,14 @@ fun BubbleSortView() {
 
     // Initialize the array and generate the steps when the composable loads.
     LaunchedEffect(Unit) {
-        // We'll reset the array with numbers in [0..100].
-        resetArray(arrayState, arraySize, maxNumber = 800)
+        // We'll reset the array with numbers in [0..500].
+        resetArray(arrayState, arraySize, maxNumber = 500)
         steps.clear()
         steps.addAll(generateBubbleSortSteps(arrayState))
         currentStepIndex = 0
     }
 
-    // Effect to advance the step index if Play mode is enabled.
+    // Advance the step index if Play mode is enabled.
     LaunchedEffect(isPlaying, currentStepIndex) {
         if (isPlaying) {
             if (currentStepIndex < steps.lastIndex) {
@@ -85,28 +78,26 @@ fun BubbleSortView() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Title using stringResource for internationalization.
-        Text(
-            text = stringResource(id = R.string.app_name),
-            color = Primary
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Scrollable container displaying the extended explanation.
+        // A fixed Box with a border. Inside it, we place a scrollable Column.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(350.dp) // Increased height for more content
-                .verticalScroll(rememberScrollState())
-                .border(width = 1.dp, color = Gray)
-                .padding(8.dp)
+                .height(350.dp)
+                .border(width = 2.dp, color = LightGray)
         ) {
-            Text(
-                text = stringResource(id = R.string.explanation_text),
-                color = DarkGray,
-                fontFamily = FontFamily.Monospace
-            )
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 8.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.explanation_text),
+                    color = TextColor,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Visualization area and controls.
@@ -128,32 +119,32 @@ fun BubbleSortView() {
                             .fillMaxHeight()
                             .border(width = 2.dp, color = LightGray)
                     ) {
-                        // We'll calculate a slotWidth for each column, then
-                        // make the bar occupy some percentage of that slot.
+                        // Calculate slot width for each column and bar width for spacing.
                         val slotWidth = size.width / step.array.size
-                        val barWidth = slotWidth * 0.8f // 80% of the slot
+                        val barWidth = slotWidth * 0.8f
                         val horizontalPadding = (slotWidth - barWidth) / 2f
 
-                        // Prepare the paint for drawing numbers (using DarkGray for better contrast).
+                        // Prepare the paint for drawing numbers.
                         val textPaint = android.graphics.Paint().apply {
                             color = DarkGray.toArgb()
-                            textSize = 30f // Keep the same text size
+                            textSize = 30f
                             textAlign = android.graphics.Paint.Align.CENTER
                         }
 
                         step.array.forEachIndexed { index, value ->
-                            // Use 'Secondary' for compared bars and 'Primary' for others.
-                            val barColor = if (index == step.comparedIndices.first || index == step.comparedIndices.second) {
+                            val barColor = if (
+                                index == step.comparedIndices.first ||
+                                index == step.comparedIndices.second
+                            ) {
                                 Secondary
                             } else {
                                 Primary
                             }
 
-                            // X position: slotWidth * index + horizontalPadding
                             val leftX = index * slotWidth + horizontalPadding
                             val topY = size.height - value
 
-                            // Draw the bar with a bit of spacing around it.
+                            // Draw the bar.
                             drawRect(
                                 color = barColor,
                                 topLeft = Offset(x = leftX, y = topY),
@@ -173,9 +164,10 @@ fun BubbleSortView() {
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Timeline slider.
+            // Timeline slider with a darker "passed" portion.
             if (steps.isNotEmpty()) {
                 Slider(
                     value = currentStepIndex.toFloat(),
@@ -185,12 +177,14 @@ fun BubbleSortView() {
                     },
                     valueRange = 0f..(steps.size - 1).toFloat(),
                     colors = SliderDefaults.colors(
-                        thumbColor = DarkGray,
-                        activeTrackColor = LightGray
+                        thumbColor = Primary,
+                        activeTrackColor = Primary,
+                        inactiveTrackColor = LightGray
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Icon buttons arranged like a music player (using custom drawables).
@@ -233,7 +227,7 @@ fun BubbleSortView() {
                 // Refresh (reset)
                 IconButton(onClick = {
                     isPlaying = false
-                    resetArray(arrayState, arraySize, maxNumber = 800)
+                    resetArray(arrayState, arraySize, maxNumber = 500)
                     steps.clear()
                     steps.addAll(generateBubbleSortSteps(arrayState))
                     currentStepIndex = 0
