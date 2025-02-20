@@ -1,3 +1,41 @@
 <resources>
     <string name="app_name">Algorithm Visualizer</string>
+
+    <string name="explanation_text">
+        <![CDATA[
+        What is Bubble Sort?
+
+        Bubble Sort is a simple sorting algorithm that works by repeatedly comparing
+        adjacent elements in a list and swapping them if they are in the wrong order.
+
+        Imagine you have a row of numbers and you want to sort them from smallest to largest.
+        Bubble Sort will look at the first two numbers, swap them if needed, then move on
+        to the next pair, and so on. With each pass, the largest unsorted number "bubbles"
+        up to its correct position.
+
+        Here is an example in Kotlin:
+
+        fun bubbleSort(arr: MutableList<Int>) {
+            for (i in 0 until arr.size) {
+                for (j in 0 until arr.size - i - 1) {
+                    if (arr[j] > arr[j + 1]) {
+                        val temp = arr[j]
+                        arr[j] = arr[j + 1]
+                        arr[j + 1] = temp
+                    }
+                }
+            }
+        }
+
+        In this visualizer, each bar represents a number. The numbers are displayed on the bars,
+        and the two bars being compared are highlighted in a different color.
+
+        Enjoy learning and have fun with Bubble Sort!
+        ]]>
+    </string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="reset">Reset</string>
 </resources>
