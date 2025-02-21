@@ -1,6 +1,7 @@
 package com.example.algorithmvisualizer.views
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -21,57 +22,73 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import com.example.algorithmvisualizer.R
 import com.example.algorithmvisualizer.algorithm.BFSGraphStep
-import com.example.algorithmvisualizer.algorithm.buildCircleLayout
-import com.example.algorithmvisualizer.algorithm.buildFixedAdjacency
+import com.example.algorithmvisualizer.algorithm.buildRandomAdjacency
 import com.example.algorithmvisualizer.algorithm.generateBFSSteps
-import com.example.algorithmvisualizer.ui.theme.DarkGray
-import com.example.algorithmvisualizer.ui.theme.LightGray
-import com.example.algorithmvisualizer.ui.theme.Primary
-import com.example.algorithmvisualizer.ui.theme.Secondary
-import com.example.algorithmvisualizer.ui.theme.TextColor
-import com.example.algorithmvisualizer.ui.theme.White
+import com.example.algorithmvisualizer.ui.theme.*
+import com.example.algorithmvisualizer.util.buildConcentricCircleLayout
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.min
 
 /**
- * A more polished BFS visualization using a circular graph layout.
+ * BFSView displays a visualization of the Breadth-First Search (BFS) algorithm.
  *
- * - Displays an ElevatedCard with a detailed BFS explanation.
- * - Uses fixed-height sections for the explanation and graph visualization so that
- *   the entire interface can be scrolled if needed.
- * - Draws nodes as circles arranged in a circle with edges connecting them.
- * - Node colors are animated based on their BFS status.
- * - Playback controls (Play/Pause, Next, Previous, Reset) allow you to navigate the BFS steps.
+ * This view mimics the Dijkstra interface style by:
+ * - Using an explanation card that displays texts from string resources.
+ * - Arranging the nodes on the canvas using a concentric circle layout.
+ * - Generating a random graph in which each node has a maximum of 2 connections.
+ * - Displaying BFS animation steps with playback controls and a final results card
+ *   that shows the order in which nodes were visited.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BFSView() {
-    // Number of nodes in the graph.
-    val nodeCount = 10
+    // Total number of nodes in the graph.
+    val nodeCount = 15
+    // Define the starting node for BFS.
+    val startNode = 0
 
-    // BFS steps state.
+    // States for the graph structure and node positions.
+    val adjacencyState = remember { mutableStateListOf<List<Int>>() }
+    val nodePositionsState = remember { mutableStateListOf<Pair<Float, Float>>() }
+
+    // States for BFS algorithm visualization.
     val bfsSteps = remember { mutableStateListOf<BFSGraphStep>() }
-    // Current step index.
     var currentStepIndex by remember { mutableStateOf(0) }
-    // Auto-play flag.
     var isPlaying by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
-    // Initialize BFS steps once.
-    LaunchedEffect(Unit) {
-        val adjacency = buildFixedAdjacency(nodeCount)
-        val steps = generateBFSSteps(adjacency, start = 0)
+    /**
+     * Resets the visualization by:
+     * 1. Generating a new node layout using a concentric circle layout.
+     * 2. Creating a new random graph with at most 2 connections per node.
+     * 3. Running BFS from the start node and recording each step.
+     */
+    fun resetAll() {
+        // Create a node layout using a concentric circle layout (normalized positions).
+        val positions = buildConcentricCircleLayout(
+            size = nodeCount,
+            outerRadius = 0.5f, // Adjust outer circle separation if needed.
+            innerRadius = 0.3f  // Adjust inner circle separation if needed.
+        )
+        nodePositionsState.clear()
+        nodePositionsState.addAll(positions)
+
+        // Generate random connectivity with each node having at most 2 connections.
+        val adjacency = buildRandomAdjacency(nodeCount)
+        adjacencyState.clear()
+        adjacencyState.addAll(adjacency)
+
+        // Generate BFS steps starting from the start node.
         bfsSteps.clear()
+        val steps = generateBFSSteps(adjacency, start = startNode)
         bfsSteps.addAll(steps)
         currentStepIndex = 0
+        isPlaying = false
     }
 
-    // Auto-play logic.
+    // Restart the visualization when the composable is first launched.
+    LaunchedEffect(Unit) { resetAll() }
+    // Auto-play effect for the BFS animation.
     LaunchedEffect(isPlaying, currentStepIndex) {
         if (isPlaying) {
             if (currentStepIndex < bfsSteps.lastIndex) {
@@ -86,34 +103,35 @@ fun BFSView() {
     // Get the current BFS step.
     val currentStep = bfsSteps.getOrNull(currentStepIndex)
 
-    // Pre-calculate node colors in a valid composable scope.
-    val colorStates = if (currentStep != null) {
-        currentStep.visited.mapIndexed { i, visited ->
-            val colorTarget = when {
-                i == currentStep.currentNode -> Secondary  // current node.
-                visited -> Primary                           // visited node.
-                else -> LightGray                            // unvisited.
-            }
-            animateColorAsState(
-                targetValue = colorTarget,
-                animationSpec = tween(durationMillis = 600)
-            )
+    // Animate node colors based on their state:
+    // - Current node: use Secondary color (with glow effect)
+    // - Visited nodes: use Primary color
+    // - Unvisited nodes: use LightGray color
+    val colorStates = currentStep?.visited?.mapIndexed { i, visited ->
+        val targetColor = when {
+            i == currentStep.currentNode -> Secondary
+            visited -> Primary
+            else -> LightGray
         }
-    } else emptyList()
+        animateColorAsState(
+            targetValue = targetColor,
+            animationSpec = tween(durationMillis = 600)
+        )
+    } ?: emptyList()
 
-    // Wrap the entire interface in a vertically scrollable Column.
     Column(
         modifier = Modifier
-            .verticalScroll(rememberScrollState())
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Explanation Card for BFS (fixed height).
+        // Explanation card that displays the BFS description and graph information.
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(350.dp),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = BackgroundCard)
         ) {
             Column(
                 modifier = Modifier
@@ -123,86 +141,142 @@ fun BFSView() {
                 Text(
                     text = stringResource(id = R.string.explanation_text_bfs),
                     color = TextColor,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        lineHeight = 24.sp
-                    ),
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
                     textAlign = TextAlign.Justify
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(id = R.string.graph_info_bfs, nodeCount, startNode),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = DarkGray
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Graph Visualization (fixed height for proper layout).
+        // Drawing area for the graph.
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
+                .height(600.dp)
                 .border(width = 2.dp, color = LightGray),
             shape = RoundedCornerShape(12.dp),
             color = White
         ) {
-            // Center the content within the box
             BoxWithConstraints(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 val density = LocalDensity.current
-                val availableSize = min(maxWidth, maxHeight)
-                val canvasSizePx = with(density) { availableSize.toPx() }
-                val center = canvasSizePx / 2f
-                val circleRadius = canvasSizePx * 0.4f
+                val boxWidthPx = with(density) { maxWidth.toPx() }
+                val boxHeightPx = with(density) { maxHeight.toPx() }
+                // Define margins as fractions of the drawing area.
+                val horizontalMarginFraction = 0.1f
+                val verticalMarginFraction = 0.09f
+                val horizontalMarginPx = boxWidthPx * horizontalMarginFraction
+                val verticalMarginPx = boxHeightPx * verticalMarginFraction
+                val effectiveWidth = boxWidthPx - 2 * horizontalMarginPx
+                val effectiveHeight = boxHeightPx - 2 * verticalMarginPx
 
-                // Compute node positions relative to the canvas center.
-                val nodePositions = buildCircleLayout(
-                    nodeCount = nodeCount,
-                    centerX = center,
-                    centerY = center,
-                    radius = circleRadius
-                )
-
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    // Draw edges using the fixed adjacency list
-                    val adjacency = buildFixedAdjacency(nodeCount)
-                    adjacency.forEachIndexed { i, neighbors ->
-                        val startPos = nodePositions[i]
-                        neighbors.forEach { j ->
-                            val endPos = nodePositions[j]
-                            drawLine(
-                                color = DarkGray,
-                                start = startPos,
-                                end = endPos,
-                                strokeWidth = 4f
-                            )
-                        }
+                // Map the normalized node positions to actual canvas positions.
+                val nodePositions = if (nodePositionsState.size == nodeCount) {
+                    nodePositionsState.map { (x, y) ->
+                        Offset(horizontalMarginPx + x * effectiveWidth, verticalMarginPx + y * effectiveHeight)
                     }
+                } else emptyList()
 
-                    // Draw nodes as circles with animated colors
-                    if (currentStep != null && colorStates.size == nodeCount) {
-                        currentStep.visited.forEachIndexed { i, _ ->
-                            val nodePos = nodePositions[i]
-                            val animatedColor = colorStates[i].value
-                            val nodeRadius = canvasSizePx * 0.06f
-
-                            drawCircle(
-                                color = animatedColor,
-                                center = nodePos,
-                                radius = nodeRadius
-                            )
-
-                            // Draw node index label in the center
-                            drawIntoCanvas { canvas ->
-                                val paint = android.graphics.Paint().apply {
-                                    color = White.toArgb()
-                                    textSize = canvasSizePx * 0.05f
-                                    textAlign = android.graphics.Paint.Align.CENTER
+                // Retrieve the label for the origin from string resources.
+                val originLabel = stringResource(id = R.string.origin_label)
+                // Draw the graph.
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    // Draw edges (lines between connected nodes).
+                    if (nodePositions.size == nodeCount && adjacencyState.size == nodeCount) {
+                        adjacencyState.forEachIndexed { i, neighbors ->
+                            val startPos = nodePositions[i]
+                            neighbors.forEach { j ->
+                                val endPos = nodePositions.getOrNull(j)
+                                if (endPos != null) {
+                                    drawLine(
+                                        color = DarkGray,
+                                        start = startPos,
+                                        end = endPos,
+                                        strokeWidth = 4f
+                                    )
                                 }
-                                canvas.nativeCanvas.drawText(
-                                    i.toString(),
-                                    nodePos.x,
-                                    nodePos.y + (paint.textSize * 0.35f),
-                                    paint
+                            }
+                        }
+                        // Draw nodes.
+                        val nodeRadius = boxWidthPx * 0.04f
+                        if (currentStep != null && colorStates.size == nodeCount) {
+                            currentStep.visited.forEachIndexed { i, _ ->
+                                val nodeCenter = nodePositions[i]
+                                val animatedColor = colorStates[i].value
+
+                                // If this node is the current node, draw a glow effect.
+                                if (i == currentStep.currentNode) {
+                                    drawCircle(
+                                        color = Secondary.copy(alpha = 0.5f),
+                                        center = nodeCenter,
+                                        radius = nodeRadius * 1.3f
+                                    )
+                                }
+                                // Draw the node circle.
+                                drawCircle(
+                                    color = animatedColor,
+                                    center = nodeCenter,
+                                    radius = nodeRadius
                                 )
+                                // Draw node border.
+                                drawCircle(
+                                    color = DarkGray,
+                                    center = nodeCenter,
+                                    radius = nodeRadius,
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                                )
+                                // Draw the node's ID inside the circle and the visit order (if available) below the node.
+                                drawIntoCanvas { canvas ->
+                                    val indexPaint = android.graphics.Paint().apply {
+                                        color = White.toArgb()
+                                        textSize = nodeRadius * 0.9f
+                                        textAlign = android.graphics.Paint.Align.CENTER
+                                    }
+                                    canvas.nativeCanvas.drawText(
+                                        i.toString(),
+                                        nodeCenter.x,
+                                        nodeCenter.y - (nodeRadius * 0.1f),
+                                        indexPaint
+                                    )
+                                    val orderIndex = currentStep.visitOrder.indexOf(i)
+                                    val orderText = if (orderIndex >= 0) (orderIndex + 1).toString() else ""
+                                    val orderPaint = android.graphics.Paint().apply {
+                                        color = White.toArgb()
+                                        textSize = nodeRadius * 0.6f
+                                        textAlign = android.graphics.Paint.Align.CENTER
+                                    }
+                                    canvas.nativeCanvas.drawText(
+                                        orderText,
+                                        nodeCenter.x,
+                                        nodeCenter.y + (nodeRadius * 0.7f),
+                                        orderPaint
+                                    )
+                                }
+                                // Label the starting node with "ORIGIN" from the string resource.
+                                if (i == startNode) {
+                                    drawIntoCanvas { canvas ->
+                                        val labelPaint = android.graphics.Paint().apply {
+                                            color = Green.toArgb()
+                                            textSize = nodeRadius * 0.6f
+                                            textAlign = android.graphics.Paint.Align.CENTER
+                                        }
+                                        canvas.nativeCanvas.drawText(
+                                            originLabel,
+                                            nodeCenter.x,
+                                            nodeCenter.y - nodeRadius - labelPaint.textSize,
+                                            labelPaint
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -210,15 +284,14 @@ fun BFSView() {
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Timeline slider.
+        // Slider to control the animation timeline.
         if (bfsSteps.isNotEmpty()) {
             Slider(
                 value = currentStepIndex.toFloat(),
                 onValueChange = { newValue ->
-                    currentStepIndex = newValue.toInt()
+                    currentStepIndex = newValue.toInt().coerceIn(0, bfsSteps.lastIndex)
                     isPlaying = false
                 },
                 valueRange = 0f..(bfsSteps.size - 1).toFloat(),
@@ -233,7 +306,7 @@ fun BFSView() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Playback controls.
+        // Playback controls: Play/Pause, Previous, Next, and Reset.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -241,10 +314,7 @@ fun BFSView() {
             IconButton(onClick = { isPlaying = !isPlaying }) {
                 Icon(
                     painter = painterResource(id = if (isPlaying) R.drawable.pause else R.drawable.play),
-                    contentDescription = if (isPlaying)
-                        stringResource(id = R.string.pause)
-                    else
-                        stringResource(id = R.string.play),
+                    contentDescription = stringResource(id = if (isPlaying) R.string.pause else R.string.play),
                     tint = Primary
                 )
             }
@@ -270,17 +340,40 @@ fun BFSView() {
             }
             IconButton(onClick = {
                 isPlaying = false
-                val adjacency = buildFixedAdjacency(nodeCount)
-                val steps = generateBFSSteps(adjacency, start = 0)
-                bfsSteps.clear()
-                bfsSteps.addAll(steps)
-                currentStepIndex = 0
+                resetAll()
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.refresh),
                     contentDescription = stringResource(id = R.string.reset),
                     tint = Primary
                 )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Final results card that displays the BFS results.
+        if (currentStepIndex == bfsSteps.lastIndex && bfsSteps.isNotEmpty()) {
+            val finalStep = bfsSteps.last()
+            val orderString = finalStep.visitOrder.joinToString(separator = ", ")
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = BackgroundCard)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.results_title_bfs),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = DarkGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.results_description_bfs, orderString),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = DarkGray
+                    )
+                }
             }
         }
     }

@@ -33,7 +33,7 @@ fun AlgorithmNavHost() {
         Screen.BubbleSort.route -> stringResource(id = R.string.bubble_sort)
         Screen.SelectionSort.route -> stringResource(id = R.string.selection_sort)
         Screen.BFS.route -> stringResource(id = R.string.BFS)
-        Screen.MergeSort.route -> stringResource(id = R.string.merge_sort)
+        Screen.Dijkstra.route -> stringResource(id = R.string.dijkstra)
         Screen.QuickSort.route -> stringResource(id = R.string.quick_sort)
         else -> stringResource(id = R.string.app_name)
     }
@@ -87,7 +87,7 @@ fun AlgorithmNavHost() {
                 composable(Screen.BubbleSort.route) { BubbleSortScreen() }
                 composable(Screen.SelectionSort.route) { SelectionSortScreen() }
                 composable(Screen.BFS.route) { BFSScreen() }
-                composable(Screen.MergeSort.route) { MergeSortScreen() }
+                composable(Screen.Dijkstra.route) { DijkstraScreen() }
                 composable(Screen.QuickSort.route) { QuickSortScreen() }
             }
         }

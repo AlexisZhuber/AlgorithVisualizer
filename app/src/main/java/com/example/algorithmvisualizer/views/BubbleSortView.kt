@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,7 @@ import com.example.algorithmvisualizer.R
 import com.example.algorithmvisualizer.algorithm.BubbleSortStep
 import com.example.algorithmvisualizer.algorithm.generateBubbleSortSteps
 import com.example.algorithmvisualizer.algorithm.resetArray
+import com.example.algorithmvisualizer.ui.theme.BackgroundCard
 import com.example.algorithmvisualizer.ui.theme.DarkGray
 import com.example.algorithmvisualizer.ui.theme.LightGray
 import com.example.algorithmvisualizer.ui.theme.Primary
@@ -86,7 +88,10 @@ fun BubbleSortView() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(350.dp),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = BackgroundCard
+            )
         ) {
             // Scrollable column for BFS explanation
             Column(

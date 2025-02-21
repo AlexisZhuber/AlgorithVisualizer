@@ -1,103 +1,94 @@
 package com.example.algorithmvisualizer.algorithm
 
-import androidx.compose.ui.geometry.Offset
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.random.Random
 
 /**
- * Holds a snapshot of BFS state at a given step.
+ * Represents a single step in the visualization of the BFS algorithm.
  *
- * @param visited A list of booleans indicating whether each node is visited.
- * @param currentNode The node currently being processed in this step.
+ * @property visited A list of booleans indicating whether each node has been visited.
+ * @property currentNode The index of the node currently being processed (-1 if none).
+ * @property visitOrder A list representing the order in which nodes were visited.
  */
 data class BFSGraphStep(
     val visited: List<Boolean>,
-    val currentNode: Int
+    val currentNode: Int,
+    val visitOrder: List<Int> = emptyList()
 )
 
 /**
- * Builds a small fixed adjacency list of size [size].
- * For simplicity, this example connects nodes in some pattern (e.g., a small mesh).
- * Replace with your own adjacency if needed.
+ * Generates a random adjacency list for a graph with the given [size].
+ *
+ * This function guarantees connectivity by creating a random chain (spanning tree)
+ * in which each node is connected to its consecutive node. Additionally, it optionally
+ * connects the first and last nodes if both have less than two connections, ensuring that
+ * each node has at most two connections.
+ *
+ * @param size Total number of nodes in the graph.
+ * @return A list representing the adjacency list where each index maps to a list of connected node indices.
  */
-fun buildFixedAdjacency(size: Int): List<List<Int>> {
-    // Example: Hard-code edges for 5 nodes, or build a small mesh for 10, etc.
-    // This example: a ring + some cross edges
+fun buildRandomAdjacency(size: Int): List<List<Int>> {
+    // Initialize the adjacency list.
     val adjacency = List(size) { mutableListOf<Int>() }
-
-    // Simple ring
-    for (i in 0 until size) {
-        val next = (i + 1) % size
-        adjacency[i].add(next)
-        adjacency[next].add(i)
+    // Create a random permutation of nodes.
+    val nodes = (0 until size).toMutableList()
+    nodes.shuffle()
+    // Connect consecutive nodes to form a chain.
+    for (i in 0 until size - 1) {
+        val u = nodes[i]
+        val v = nodes[i + 1]
+        adjacency[u].add(v)
+        adjacency[v].add(u)
     }
-
-    // Optionally add some random cross edges or other patterns:
-    // adjacency[0].add(3)
-    // adjacency[3].add(0)
-    // etc.
-
+    // Optionally, connect the first and last nodes if both have fewer than 2 connections.
+    val first = nodes.first()
+    val last = nodes.last()
+    if (adjacency[first].size < 2 && adjacency[last].size < 2 && Random.nextFloat() < 0.5f) {
+        adjacency[first].add(last)
+        adjacency[last].add(first)
+    }
     return adjacency
 }
 
 /**
- * Performs BFS and records each step (visited array + current node).
- * Start from [start].
+ * Executes the BFS algorithm on the provided [adjacency] list, starting from the node [start].
+ *
+ * As the algorithm progresses, each step is recorded with the current state of the visited nodes,
+ * the node being processed, and the order in which nodes have been visited.
+ *
+ * @param adjacency The graph represented as an adjacency list.
+ * @param start The starting node index for BFS.
+ * @return A list of BFSGraphStep objects representing each step of the BFS traversal.
  */
 fun generateBFSSteps(adjacency: List<List<Int>>, start: Int = 0): List<BFSGraphStep> {
     val steps = mutableListOf<BFSGraphStep>()
-
     val n = adjacency.size
     val visited = MutableList(n) { false }
     val queue = ArrayDeque<Int>()
+    val orderList = mutableListOf<Int>()
 
+    // Mark the starting node as visited and add it to the queue.
     visited[start] = true
     queue.add(start)
-
-    // Record initial state
-    steps.add(BFSGraphStep(visited.toList(), start))
+    orderList.add(start)
+    steps.add(BFSGraphStep(visited.toList(), start, orderList.toList()))
 
     while (queue.isNotEmpty()) {
         val current = queue.removeFirst()
-
-        // For each neighbor of current, if not visited, visit and record a step
+        // For each neighbor of the current node...
         for (neighbor in adjacency[current]) {
-            // Record the step before we process neighbor
-            steps.add(BFSGraphStep(visited.toList(), current))
-
+            // Record the state before processing the neighbor.
+            steps.add(BFSGraphStep(visited.toList(), current, orderList.toList()))
             if (!visited[neighbor]) {
+                // Visit the neighbor.
                 visited[neighbor] = true
                 queue.add(neighbor)
-
-                // Record the step after discovering neighbor
-                steps.add(BFSGraphStep(visited.toList(), neighbor))
+                orderList.add(neighbor)
+                // Record the state after the neighbor is discovered.
+                steps.add(BFSGraphStep(visited.toList(), neighbor, orderList.toList()))
             }
         }
     }
-
-    // Final step: no current node
-    steps.add(BFSGraphStep(visited.toList(), -1))
+    // Final step: indicate that no node is currently being processed.
+    steps.add(BFSGraphStep(visited.toList(), -1, orderList.toList()))
     return steps
-}
-
-/**
- * Returns a list of (x, y) positions arranged in a circle.
- * [centerX], [centerY] is the circle center; [radius] is how big the circle is.
- */
-fun buildCircleLayout(
-    nodeCount: Int,
-    centerX: Float,
-    centerY: Float,
-    radius: Float
-): List<Offset> {
-    val positions = mutableListOf<Offset>()
-    val angleStep = (2 * Math.PI / nodeCount)
-
-    for (i in 0 until nodeCount) {
-        val angle = i * angleStep
-        val x = centerX + radius * cos(angle).toFloat()
-        val y = centerY + radius * sin(angle).toFloat()
-        positions.add(Offset(x, y))
-    }
-    return positions
 }

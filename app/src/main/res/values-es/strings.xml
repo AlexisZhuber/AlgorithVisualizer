@@ -1,8 +1,18 @@
+<!-- Archivo de Strings para el Visualizador de Algoritmos -->
 <resources xml:space="preserve">
-    <!-- Nombre de la Aplicación -->
+
+    <!-- ========================================================= -->
+    <!-- GENERAL: Información de la aplicación                   -->
+    <!-- ========================================================= -->
     <string name="app_name">Visualizador de Algoritmos</string>
 
-    <!-- Explicación para Bubble Sort (sin cambios) -->
+
+    <!-- ========================================================= -->
+    <!-- EXPLICACIONES DE ALGORITMOS                              -->
+    <!-- Cada string contiene la explicación y un ejemplo en Kotlin-->
+    <!-- ========================================================= -->
+
+    <!-- Explicación para Bubble Sort -->
     <string name="explanation_text_bubble">
         <![CDATA[
 ¿Qué es Bubble Sort?
@@ -36,7 +46,7 @@ y las dos barras que se están comparando se resaltan con un color diferente.
         ]]>
     </string>
 
-    <!-- NUEVO: Explicación para Selection Sort -->
+    <!-- Explicación para Selection Sort -->
     <string name="explanation_text_selection">
         <![CDATA[
 ¿Qué es Selection Sort?
@@ -124,17 +134,112 @@ Observa cómo el algoritmo se expande nivel por nivel mientras avanzas paso a pa
         ]]>
     </string>
 
-    <!-- Nombres de Algoritmos -->
+    <string name="graph_info_bfs">
+        Grafo con %1$d nodos. Nodo de inicio: %2$d.
+    </string>
+    <string name="results_title_bfs">Resultados de la búsqueda BFS</string>
+    <string name="results_description_bfs">
+        La búsqueda BFS ha completado la exploración del grafo. El orden de visita fue: %1$s.
+    </string>
+
+    <!-- Explicación para el Algoritmo de Dijkstra -->
+    <string name="explanation_text_dijkstra">
+    <![CDATA[
+¿Qué es el Algoritmo de Dijkstra?\n\n
+El Algoritmo de Dijkstra es un método para encontrar la ruta más corta desde un nodo de origen hasta todos los demás nodos en un grafo con pesos no negativos. Imagina que tienes un mapa con ciudades y carreteras que tienen diferentes costos de viaje. Este algoritmo te ayuda a descubrir cuál es la distancia más corta para llegar a cada ciudad.\n\n
+¿Cómo Funciona?\n\n
+1. Inicializa todas las distancias en infinito (Int.MAX_VALUE), excepto la del nodo de origen, que se establece en 0.\n
+2. Marca todos los nodos como no visitados. Luego, selecciona el nodo no visitado con la distancia conocida más pequeña. A este lo llamamos nodo actual.\n
+3. Marca el nodo actual como visitado. Luego, revisa todos sus vecinos y actualiza sus distancias si encontraras un camino más corto a través del nodo actual.\n
+4. Repite este proceso hasta que todos los nodos hayan sido visitados o no queden nodos alcanzables.\n\n
+Ejemplo en Kotlin:\n\n
+fun dijkstra(start: Int, adjacency: List<List<Pair<Int, Int>>>): List<Int> {\n
+\u00A0\u00A0    val n = adjacency.size\n
+\u00A0\u00A0    val dist = MutableList(n) { Int.MAX_VALUE }\n
+\u00A0\u00A0    val visited = MutableList(n) { false }\n\n
+\u00A0\u00A0    dist[start] = 0\n\n
+\u00A0\u00A0    for (i in 0 until n) {\n
+\u00A0\u00A0\u00A0        var u = -1\n
+\u00A0\u00A0\u00A0        var minDist = Int.MAX_VALUE\n
+\u00A0\u00A0\u00A0        // Encuentra el nodo no visitado con la distancia mínima\n
+\u00A0\u00A0\u00A0        for (j in 0 until n) {\n
+\u00A0\u00A0\u00A0\u00A0            if (!visited[j] && dist[j] < minDist) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                u = j\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                minDist = dist[j]\n
+\u00A0\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0\u00A0        }\n\n
+\u00A0\u00A0\u00A0        // Si u sigue en -1, no quedan nodos accesibles\n
+\u00A0\u00A0\u00A0        if (u == -1) break\n\n
+\u00A0\u00A0\u00A0        // Marca u como visitado\n
+\u00A0\u00A0\u00A0        visited[u] = true\n\n
+\u00A0\u00A0\u00A0        // Relaja las distancias de los vecinos de u\n
+\u00A0\u00A0\u00A0        for ((v, weight) in adjacency[u]) {\n
+\u00A0\u00A0\u00A0\u00A0            if (!visited[v]) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                val newDist = dist[u] + weight\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                if (newDist < dist[v]) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0                    dist[v] = newDist\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                }\n
+\u00A0\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0\u00A0        }\n
+\u00A0\u00A0    }\n\n
+\u00A0\u00A0    return dist // Retorna la distancia más corta a cada nodo\n
+}\n\n
+¿Qué Verás en Este Visualizador?\n\n
+En este visualizador, cada nodo del grafo está representado como un círculo con un número que indica su distancia desde el nodo inicial. Las aristas (líneas) muestran el peso o costo de cada conexión.\n
+El nodo que se está procesando en cada paso se marcará en rojo, los nodos visitados aparecerán en azul y los nodos aún no visitados estarán en gris. A medida que avances paso a paso o reproduzcas la animación, podrás observar cómo el algoritmo va actualizando las distancias y eligiendo el próximo nodo con la distancia mínima.\n
+Esta progresión paso a paso te permitirá comprender de forma clara y visual cómo Dijkstra determina las rutas más cortas en un grafo con pesos no negativos.\n\n
+¡Disfruta aprendiendo y experimentando con el Algoritmo de Dijkstra!
+    ]]>
+    </string>
+
+
+    <!-- ========================================================= -->
+    <!-- RESULTADOS FINALES: Tarjeta de Resultados               -->
+    <!-- Se muestran detalles y resultados del algoritmo Dijkstra -->
+    <!-- ========================================================= -->
+
+    <string name="results_title">Resultados Detallados</string>
+    <string name="results_description">
+        <![CDATA[
+Cada círculo muestra dos números:\n\n
+• El número en el centro es el identificador del nodo.\n
+• El número debajo es el costo acumulado (la distancia mínima desde el origen).\n\n
+
+La línea en rojo indica la ruta más corta determinada por el algoritmo de Dijkstra.
+    ]]>
+    </string>
+    <string name="table_header_node">Punto</string>
+    <string name="table_header_cost">Costo acumulado</string>
+    <string name="table_row_node">Punto</string>
+    <string name="results_footer">La línea roja muestra el recorrido más simple desde el origen hasta el destino.</string>
+    <string name="origin_label">ORIGEN</string>
+    <string name="destination_label">DESTINO</string>
+    <string name="graph_info">
+        <![CDATA[
+Número de nodos: %1$d\n
+Origen: %2$d\n
+Destino: %3$d
+]]>
+    </string>
+
+
+    <!-- ========================================================= -->
+    <!-- NOMBRES DE ALGORITMOS                                   -->
+    <!-- ========================================================= -->
     <string name="bubble_sort">Bubble Sort</string>
     <string name="selection_sort">Selection Sort</string>
     <string name="BFS">BFS en Grafos</string>
-    <string name="merge_sort">Merge Sort</string>
+    <string name="dijkstra">Dijkstra</string>
     <string name="quick_sort">Quick Sort</string>
 
-    <!-- Etiquetas para Botones de Control -->
+
+    <!-- ========================================================= -->
+    <!-- ETIQUETAS DE BOTONES DE CONTROL                        -->
+    <!-- ========================================================= -->
     <string name="play">Reproducir</string>
     <string name="pause">Pausar</string>
     <string name="previous">Anterior</string>
     <string name="next">Siguiente</string>
     <string name="reset">Reiniciar</string>
+
 </resources>

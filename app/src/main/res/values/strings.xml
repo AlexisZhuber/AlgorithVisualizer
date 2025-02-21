@@ -1,6 +1,16 @@
+<!-- File: strings.xml - Algorithm Visualizer Strings -->
 <resources xml:space="preserve">
-    <!-- Application Name -->
+
+    <!-- ========================================================= -->
+    <!-- GENERAL: Application Information                        -->
+    <!-- ========================================================= -->
     <string name="app_name">Algorithm Visualizer</string>
+
+
+    <!-- ========================================================= -->
+    <!-- ALGORITHM EXPLANATIONS                                  -->
+    <!-- Cada string contiene la explicación y un ejemplo en Kotlin -->
+    <!-- ========================================================= -->
 
     <!-- Explanation for Bubble Sort (unchanged) -->
     <string name="explanation_text_bubble">
@@ -121,14 +131,107 @@ Enjoy exploring graphs and learning how BFS works!
         ]]>
     </string>
 
-    <!-- Algorithm Names -->
+    <string name="graph_info_bfs">
+        Graph with %1$d nodes. Start node: %2$d.
+    </string>
+    <string name="results_title_bfs">BFS Search Results</string>
+    <string name="results_description_bfs">
+        The BFS search has completed the graph exploration. The visit order was: %1$s.
+    </string>
+
+    <!-- Explanation for Dijkstras Algorithm -->
+    <string name="explanation_text_dijkstra">
+    <![CDATA[
+What is Dijkstras Algorithm?\n\n
+Dijkstras Algorithm is a method to find the shortest path from a source node to every other node in a graph with non-negative edge weights. Imagine you have a map of cities connected by roads with different travel costs. This algorithm helps you determine the minimum distance required to travel to each city.\n\n
+How Does It Work?\n\n
+1. Initialize all distances to infinity (Int.MAX_VALUE), except for the source node, which is set to 0.\n
+2. Mark all nodes as unvisited. Then, select the unvisited node with the smallest known distance. We call this the current node.\n
+3. Mark the current node as visited. Next, look at all of its neighbors and update their distances if a shorter path is found via the current node.\n
+4. Repeat this process until all nodes have been visited or no reachable nodes remain.\n\n
+Example in Kotlin:\n\n
+fun dijkstra(start: Int, adjacency: List<List<Pair<Int, Int>>>): List<Int> {\n
+\u00A0\u00A0    val n = adjacency.size\n
+\u00A0\u00A0    val dist = MutableList(n) { Int.MAX_VALUE }\n
+\u00A0\u00A0    val visited = MutableList(n) { false }\n\n
+\u00A0\u00A0    dist[start] = 0\n\n
+\u00A0\u00A0    for (i in 0 until n) {\n
+\u00A0\u00A0\u00A0        var u = -1\n
+\u00A0\u00A0\u00A0        var minDist = Int.MAX_VALUE\n
+\u00A0\u00A0\u00A0        // Find the unvisited node with the smallest distance\n
+\u00A0\u00A0\u00A0        for (j in 0 until n) {\n
+\u00A0\u00A0\u00A0\u00A0            if (!visited[j] && dist[j] < minDist) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                u = j\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                minDist = dist[j]\n
+\u00A0\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0\u00A0        }\n\n
+\u00A0\u00A0\u00A0        // If u remains -1, there are no more reachable nodes\n
+\u00A0\u00A0\u00A0        if (u == -1) break\n\n
+\u00A0\u00A0\u00A0        // Mark u as visited\n
+\u00A0\u00A0\u00A0        visited[u] = true\n\n
+\u00A0\u00A0\u00A0        // Relax the distances of us neighbors\n
+\u00A0\u00A0\u00A0        for ((v, weight) in adjacency[u]) {\n
+\u00A0\u00A0\u00A0\u00A0            if (!visited[v]) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                val newDist = dist[u] + weight\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                if (newDist < dist[v]) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0                    dist[v] = newDist\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                }\n
+\u00A0\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0\u00A0        }\n
+\u00A0\u00A0    }\n\n
+\u00A0\u00A0    return dist // Returns the shortest distance to each node\n
+}\n\n
+What Will You See in This Visualizer?\n\n
+In this visualizer, each node in the graph is displayed as a circle with a number representing its distance from the source node. The edges (lines) show the weight or cost of each connection.\n
+The currently processed node at each step will be highlighted in red, the nodes that have been permanently visited (fixed) will appear in blue, and unvisited nodes will appear in gray. As you step through or play the animation, you can watch how the algorithm updates distances and selects the next node with the minimum distance.\n
+This step-by-step progression gives you a clear, visual understanding of how Dijkstras identifies the shortest paths in a graph with non-negative weights.\n\n
+Enjoy learning and experimenting with Dijkstras Algorithm!
+    ]]>
+    </string>
+
+
+    <!-- ========================================================= -->
+    <!-- FINAL RESULTS CARD STRINGS                             -->
+    <!-- Strings used for displaying the final results of Dijkstras Algorithm -->
+    <!-- ========================================================= -->
+
+    <string name="results_title">Detailed Results</string>
+    <string name="results_description">
+        <![CDATA[
+Each circle displays two numbers:\n\n
+• The number in the center is the node ID.\n
+• The number below is the accumulated cost (i.e., the minimum distance from the origin).\n\n
+The red line highlights the shortest route determined by Dijkstras algorithm.
+    ]]>
+    </string>
+    <string name="table_header_node">Node</string>
+    <string name="table_header_cost">Accumulated Cost</string>
+    <string name="table_row_node">Node</string>
+    <string name="results_footer">The red line shows the simplest route from the origin to the destination.</string>
+    <string name="origin_label">ORIGIN</string>
+    <string name="destination_label">DESTINATION</string>
+    <string name="graph_info">
+        <![CDATA[
+Number of nodes: %1$d\n
+Origin: %2$d\n
+Destination: %3$d
+]]>
+    </string>
+
+
+    <!-- ========================================================= -->
+    <!-- ALGORITHM NAMES                                         -->
+    <!-- ========================================================= -->
     <string name="bubble_sort">Bubble Sort</string>
     <string name="selection_sort">Selection Sort</string>
     <string name="BFS">BFS in Graphs</string>
-    <string name="merge_sort">Merge Sort</string>
+    <string name="dijkstra">Dijkstras</string>
     <string name="quick_sort">Quick Sort</string>
 
-    <!-- Control Button Labels -->
+
+    <!-- ========================================================= -->
+    <!-- CONTROL BUTTON LABELS                                   -->
+    <!-- ========================================================= -->
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>

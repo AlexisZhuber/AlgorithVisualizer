@@ -4,6 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.example.algorithmvisualizer.views.BFSView
 import com.example.algorithmvisualizer.views.BubbleSortView
+import com.example.algorithmvisualizer.views.DijkstraView
 import com.example.algorithmvisualizer.views.SelectionSortView
 
 @Composable
@@ -22,8 +23,8 @@ fun BFSScreen() {
 }
 
 @Composable
-fun MergeSortScreen() {
-    Text(text = "Merge Sort Visualization")
+fun DijkstraScreen() {
+    DijkstraView()
 }
 
 @Composable
