@@ -92,7 +92,7 @@ fun BFSView() {
     LaunchedEffect(isPlaying, currentStepIndex) {
         if (isPlaying) {
             if (currentStepIndex < bfsSteps.lastIndex) {
-                delay(600L)
+                delay(200L)
                 currentStepIndex++
             } else {
                 isPlaying = false

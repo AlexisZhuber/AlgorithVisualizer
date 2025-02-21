@@ -116,7 +116,7 @@ fun DijkstraView() {
     LaunchedEffect(isPlaying, currentStepIndex) {
         if (isPlaying) {
             if (currentStepIndex < dijkstraSteps.lastIndex) {
-                delay(600L)
+                delay(200L)
                 currentStepIndex++
             } else {
                 isPlaying = false
@@ -251,8 +251,23 @@ fun DijkstraView() {
                                     (startPos.y + endPos.y) / 2f
                                 )
                                 val dx = endPos.x - startPos.x
-                                // If line is nearly vertical, offset weight to the left.
-                                val xOffset = if (abs(dx) < 5f) - (boxWidthPx * 0.05f) else 0f
+                                val dy = endPos.y - startPos.y
+                                val length = kotlin.math.sqrt(dx * dx + dy * dy)
+                                val offsetDistance = boxWidthPx * 0.015f // Ajusta este valor según el tamaño deseado
+
+                                // Calculate a unit perpendicular vector.
+                                var perpX = if (length != 0f) -dy / length else 0f
+                                var perpY = if (length != 0f) dx / length else 0f
+
+                                // Optionally, adjust the perpendicular direction so the text is always above the line.
+                                // For example, ensure that the y-component is negative.
+                                if (perpY > 0) {
+                                    perpX = -perpX
+                                    perpY = -perpY
+                                }
+
+                                val finalX = midPoint.x + perpX * offsetDistance
+                                val finalY = midPoint.y + perpY * offsetDistance
 
                                 drawIntoCanvas { canvas ->
                                     val paint = android.graphics.Paint().apply {
@@ -262,8 +277,8 @@ fun DijkstraView() {
                                     }
                                     canvas.nativeCanvas.drawText(
                                         edge.weight.toString(),
-                                        midPoint.x + xOffset,
-                                        midPoint.y - (paint.textSize * 0.3f),
+                                        finalX,
+                                        finalY,
                                         paint
                                     )
                                 }

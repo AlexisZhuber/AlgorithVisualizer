@@ -66,7 +66,7 @@ fun BubbleSortView() {
     LaunchedEffect(isPlaying, currentStepIndex) {
         if (isPlaying) {
             if (currentStepIndex < steps.lastIndex) {
-                delay(300L)
+                delay(200L)
                 currentStepIndex++
             } else {
                 isPlaying = false
