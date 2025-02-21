@@ -2,7 +2,9 @@ package com.example.algorithmvisualizer.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.algorithmvisualizer.views.BFSView
 import com.example.algorithmvisualizer.views.BubbleSortView
+import com.example.algorithmvisualizer.views.SelectionSortView
 
 @Composable
 fun BubbleSortScreen() {
@@ -11,24 +13,20 @@ fun BubbleSortScreen() {
 
 @Composable
 fun SelectionSortScreen() {
-    // Placeholder: Replace with your actual Selection Sort visualizer
-    Text(text = "Selection Sort Visualization")
+    SelectionSortView()
 }
 
 @Composable
-fun InsertionSortScreen() {
-    // Placeholder: Replace with your actual Insertion Sort visualizer
-    Text(text = "Insertion Sort Visualization")
+fun BFSScreen() {
+    BFSView()
 }
 
 @Composable
 fun MergeSortScreen() {
-    // Placeholder: Replace with your actual Merge Sort visualizer
     Text(text = "Merge Sort Visualization")
 }
 
 @Composable
 fun QuickSortScreen() {
-    // Placeholder: Replace with your actual Quick Sort visualizer
     Text(text = "Quick Sort Visualization")
 }

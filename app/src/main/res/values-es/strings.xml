@@ -2,8 +2,8 @@
     <!-- Nombre de la Aplicación -->
     <string name="app_name">Visualizador de Algoritmos</string>
 
-    <!-- Explicación detallada de Bubble Sort con un ejemplo de código en Kotlin bien formateado -->
-    <string name="explanation_text">
+    <!-- Explicación para Bubble Sort (sin cambios) -->
+    <string name="explanation_text_bubble">
         <![CDATA[
 ¿Qué es Bubble Sort?
 
@@ -23,7 +23,7 @@ fun bubbleSort(arr: MutableList<Int>) {\n
 \u00A0\u00A0\u00A0            if (arr[j] > arr[j + 1]) {\n
 \u00A0\u00A0\u00A0\u00A0               val temp = arr[j]\n
 \u00A0\u00A0\u00A0\u00A0               arr[j] = arr[j + 1]\n
-\u00A0\u00A0\u00A0\u00A0                arr[j + 1] = temp\n
+\u00A0\u00A0\u00A0\u00A0               arr[j + 1] = temp\n
 \u00A0\u00A0 \u00A0\u00A0           }\n
 \u00A0\u00A0\u00A0        }\n
 \u00A0\u00A0}\n
@@ -36,10 +36,98 @@ y las dos barras que se están comparando se resaltan con un color diferente.
         ]]>
     </string>
 
+    <!-- NUEVO: Explicación para Selection Sort -->
+    <string name="explanation_text_selection">
+        <![CDATA[
+¿Qué es Selection Sort?
+
+Selection Sort es un algoritmo sencillo que funciona encontrando el elemento más pequeño
+en la parte no ordenada de la lista y lo intercambia con el elemento que se encuentra
+al inicio de esa parte no ordenada.
+
+Imagina que tienes una fila de números. Selection Sort escaneará toda la lista para encontrar
+el número más pequeño y lo intercambiará con el primer elemento. Luego mueve el límite
+de la parte ordenada un paso a la derecha y repite el proceso para el resto de la parte
+sin ordenar, hasta que toda la lista quede ordenada.
+
+Aquí tienes un ejemplo en Kotlin:\n\n
+
+fun selectionSort(arr: MutableList<Int>) {\n
+\u00A0\u00A0    for (i in 0 until arr.size - 1) {\n
+\u00A0\u00A0        var minIndex = i\n
+\u00A0\u00A0        for (j in i+1 until arr.size) {\n
+\u00A0\u00A0\u00A0            if (arr[j] < arr[minIndex]) {\n
+\u00A0\u00A0\u00A0\u00A0               minIndex = j\n
+\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0        }\n
+\u00A0\u00A0        // Intercambia el mínimo encontrado con el elemento en la posición i\n
+\u00A0\u00A0        val temp = arr[i]\n
+\u00A0\u00A0        arr[i] = arr[minIndex]\n
+\u00A0\u00A0        arr[minIndex] = temp\n
+\u00A0    }\n
+}\n\n
+
+En este visualizador, cada barra representa un número. Los números se muestran sobre las barras,
+y las dos barras que se están comparando se resaltan con un color diferente.
+
+¡Disfruta aprendiendo y diviértete con Selection Sort!
+        ]]>
+    </string>
+
+    <!-- Explicación para BFS en Grafos -->
+    <string name="explanation_text_bfs">
+        <![CDATA[
+¿Qué es un Grafo?\n\n
+Un grafo es una colección de nodos (o vértices) conectados por aristas. Los grafos se utilizan para modelar\n
+relaciones entre objetos, como redes sociales, rutas de transporte o páginas web.\n\n
+¿Qué es la Búsqueda en Anchura (BFS)?\n\n
+La Búsqueda en Anchura (BFS) es un algoritmo utilizado para recorrer o buscar en un grafo. Comenzando desde un nodo origen,\n
+BFS visita primero a todos los vecinos de ese nodo, y luego a los vecinos de esos vecinos. Este enfoque por niveles es\n
+útil para encontrar el camino más corto en un grafo no ponderado.\n\n
+¿Cómo Funciona BFS?\n\n
+1. Comienza desde un nodo origen y márcalo como visitado.\n
+2. Agrega el nodo origen a una cola.\n
+3. Mientras la cola no esté vacía:\n
+\u00A0\u00A0- Remueve el nodo que está al frente de la cola.\n
+\u00A0\u00A0- Para cada vecino de ese nodo:\n
+\u00A0\u00A0\u00A0\u00A0Si el vecino no ha sido visitado, márcalo como visitado, registra su nivel (distancia desde el origen) y agrégalo a la cola.\n
+4. Continúa hasta que todos los nodos alcanzables hayan sido visitados.\n\n
+Ejemplo en Kotlin:\n\n
+fun bfs(start: Int, adjacency: List<List<Int>>): List<Int> {\n
+\u00A0\u00A0    val visited = MutableList(adjacency.size) { false }\n
+\u00A0\u00A0    val level = MutableList(adjacency.size) { -1 }\n
+\u00A0\u00A0    val queue = ArrayDeque<Int>()\n\n
+\u00A0\u00A0    visited[start] = true\n
+\u00A0\u00A0    level[start] = 0\n
+\u00A0\u00A0    queue.add(start)\n\n
+\u00A0\u00A0    while (queue.isNotEmpty()) {\n
+\u00A0\u00A0\u00A0        val current = queue.removeFirst()\n
+\u00A0\u00A0\u00A0        // Procesa cada vecino de current\n
+\u00A0\u00A0\u00A0        for (neighbor in adjacency[current]) {\n
+\u00A0\u00A0\u00A0\u00A0            if (!visited[neighbor]) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                visited[neighbor] = true\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                level[neighbor] = level[current] + 1\n
+\u00A0\u00A0\u00A0\u00A0\u00A0                queue.add(neighbor)\n
+\u00A0\u00A0\u00A0\u00A0            }\n
+\u00A0\u00A0\u00A0        }\n
+\u00A0\u00A0    }\n\n
+\u00A0\u00A0    return level // Devuelve la distancia desde el nodo origen para cada nodo\n
+    }\n\n
+¿Qué Verás en Este Visualizador?\n\n
+En este visualizador, cada nodo del grafo se representa como un círculo dispuesto en un diseño circular.\n
+Las aristas entre los nodos se dibujan como líneas. El color de cada nodo indica su estado BFS:\n
+\u00A0\u00A0- Los nodos no visitados aparecen en gris.\n
+\u00A0\u00A0- Los nodos visitados se muestran en el color azul.\n
+\u00A0\u00A0- El nodo que se está procesando actualmente se resalta en el color rojo.\n\n
+Observa cómo el algoritmo se expande nivel por nivel mientras avanzas paso a paso o en modo reproducción.\n\n
+¡Disfruta explorando grafos y comprendiendo cómo funciona la BFS!
+        ]]>
+    </string>
+
     <!-- Nombres de Algoritmos -->
     <string name="bubble_sort">Bubble Sort</string>
     <string name="selection_sort">Selection Sort</string>
-    <string name="insertion_sort">Insertion Sort</string>
+    <string name="BFS">BFS en Grafos</string>
     <string name="merge_sort">Merge Sort</string>
     <string name="quick_sort">Quick Sort</string>
 

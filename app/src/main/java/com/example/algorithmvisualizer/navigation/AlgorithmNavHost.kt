@@ -32,7 +32,7 @@ fun AlgorithmNavHost() {
     val currentTitle = when (currentRoute) {
         Screen.BubbleSort.route -> stringResource(id = R.string.bubble_sort)
         Screen.SelectionSort.route -> stringResource(id = R.string.selection_sort)
-        Screen.InsertionSort.route -> stringResource(id = R.string.insertion_sort)
+        Screen.BFS.route -> stringResource(id = R.string.BFS)
         Screen.MergeSort.route -> stringResource(id = R.string.merge_sort)
         Screen.QuickSort.route -> stringResource(id = R.string.quick_sort)
         else -> stringResource(id = R.string.app_name)
@@ -86,7 +86,7 @@ fun AlgorithmNavHost() {
             ) {
                 composable(Screen.BubbleSort.route) { BubbleSortScreen() }
                 composable(Screen.SelectionSort.route) { SelectionSortScreen() }
-                composable(Screen.InsertionSort.route) { InsertionSortScreen() }
+                composable(Screen.BFS.route) { BFSScreen() }
                 composable(Screen.MergeSort.route) { MergeSortScreen() }
                 composable(Screen.QuickSort.route) { QuickSortScreen() }
             }
