@@ -253,7 +253,7 @@ fun DijkstraView() {
                                 val dx = endPos.x - startPos.x
                                 val dy = endPos.y - startPos.y
                                 val length = kotlin.math.sqrt(dx * dx + dy * dy)
-                                val offsetDistance = boxWidthPx * 0.015f // Ajusta este valor según el tamaño deseado
+                                val offsetDistance = boxWidthPx * 0.015f
 
                                 // Calculate a unit perpendicular vector.
                                 var perpX = if (length != 0f) -dy / length else 0f
@@ -269,18 +269,20 @@ fun DijkstraView() {
                                 val finalX = midPoint.x + perpX * offsetDistance
                                 val finalY = midPoint.y + perpY * offsetDistance
 
-                                drawIntoCanvas { canvas ->
-                                    val paint = android.graphics.Paint().apply {
-                                        color = edgeColor.toArgb()
-                                        textSize = boxWidthPx * 0.03f
-                                        textAlign = android.graphics.Paint.Align.CENTER
+                                if (i < edge.target) {
+                                    drawIntoCanvas { canvas ->
+                                        val paint = android.graphics.Paint().apply {
+                                            color = edgeColor.toArgb()
+                                            textSize = boxWidthPx * 0.03f
+                                            textAlign = android.graphics.Paint.Align.CENTER
+                                        }
+                                        canvas.nativeCanvas.drawText(
+                                            edge.weight.toString(),
+                                            finalX,
+                                            finalY,
+                                            paint
+                                        )
                                     }
-                                    canvas.nativeCanvas.drawText(
-                                        edge.weight.toString(),
-                                        finalX,
-                                        finalY,
-                                        paint
-                                    )
                                 }
                             }
                         }
