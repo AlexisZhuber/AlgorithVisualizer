@@ -5,5 +5,5 @@ sealed class Screen(val route: String) {
     object SelectionSort : Screen("selection_sort")
     object BFS : Screen("BFS")
     object Dijkstra : Screen("dijkstra")
-    object QuickSort : Screen("quick_sort")
+    object AStar : Screen("astar")
 }

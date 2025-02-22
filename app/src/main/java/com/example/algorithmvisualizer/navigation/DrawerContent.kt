@@ -27,7 +27,7 @@ fun DrawerContent(onDestinationClicked: (route: String) -> Unit) {
         DrawerItem(title = stringResource(id = R.string.selection_sort), route = Screen.SelectionSort.route, onItemClicked = onDestinationClicked)
         DrawerItem(title = stringResource(id = R.string.BFS), route = Screen.BFS.route, onItemClicked = onDestinationClicked)
         DrawerItem(title = stringResource(id = R.string.dijkstra), route = Screen.Dijkstra.route, onItemClicked = onDestinationClicked)
-        DrawerItem(title = stringResource(id = R.string.quick_sort), route = Screen.QuickSort.route, onItemClicked = onDestinationClicked)
+        DrawerItem(title = stringResource(id = R.string.astar), route = Screen.AStar.route, onItemClicked = onDestinationClicked)
     }
 }
 

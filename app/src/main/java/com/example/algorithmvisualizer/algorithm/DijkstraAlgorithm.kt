@@ -11,12 +11,14 @@ import kotlin.random.Random
  * @property visited A list of booleans indicating whether each node has been finalized (visited).
  * @property currentNode The index of the node currently being processed (-1 if not applicable).
  * @property pathEdges A list of pairs representing the edges that form the final shortest path.
+ * @property iterationCount (Optional) The number of iterations performed to find the best route.
  */
 data class DijkstraGraphStep(
     val distances: List<Int>,
     val visited: List<Boolean>,
     val currentNode: Int,
-    val pathEdges: List<Pair<Int, Int>> = emptyList()
+    val pathEdges: List<Pair<Int, Int>> = emptyList(),
+    val iterationCount: Int? = null
 )
 
 /**
@@ -72,6 +74,8 @@ fun generateDijkstraSteps(
     // Record the initial state before processing any node.
     steps.add(DijkstraGraphStep(distances = dist.toList(), visited = visited.toList(), currentNode = -1))
 
+    var bestIteration: Int? = null
+
     // Main loop: iterate at most 'n' times.
     for (i in 0 until n) {
         var u = -1
@@ -89,6 +93,10 @@ fun generateDijkstraSteps(
 
         // Mark the selected node as visited.
         visited[u] = true
+        // Record iteration count when destination node is reached for the first time.
+        if (u == end && bestIteration == null) {
+            bestIteration = i + 1
+        }
         // Record the state after marking the node as visited.
         steps.add(DijkstraGraphStep(distances = dist.toList(), visited = visited.toList(), currentNode = u))
 
@@ -122,8 +130,16 @@ fun generateDijkstraSteps(
         pathEdges.add(edge)
         cur = p
     }
-    // Record the final state including the reconstructed path.
-    steps.add(DijkstraGraphStep(distances = dist.toList(), visited = visited.toList(), currentNode = -1, pathEdges = pathEdges))
+    // Record the final state including the reconstructed path and iteration count.
+    steps.add(
+        DijkstraGraphStep(
+            distances = dist.toList(),
+            visited = visited.toList(),
+            currentNode = -1,
+            pathEdges = pathEdges,
+            iterationCount = bestIteration
+        )
+    )
     return steps
 }
 

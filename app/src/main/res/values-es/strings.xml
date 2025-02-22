@@ -208,6 +208,7 @@ Cada círculo muestra dos números:\n\n
 La línea en rojo indica la ruta más corta determinada por el algoritmo de Dijkstra.
     ]]>
     </string>
+    <string name="table_header_iterations">Iteraciones</string>
     <string name="table_header_node">Punto</string>
     <string name="table_header_cost">Costo acumulado</string>
     <string name="table_row_node">Punto</string>
@@ -223,6 +224,56 @@ Destino: %3$d
     </string>
 
 
+    <!-- A*  -->
+    <string name="explanation_text_astar"><![CDATA[
+¿Qué es el Algoritmo A*?\n\n
+El Algoritmo A* (A-Star) es un método utilizado para encontrar la ruta óptima entre dos nodos en un grafo mediante el uso de una heurística que guía la búsqueda. Imagina que tienes un mapa y deseas encontrar la ruta más rápida entre dos ciudades. A* utiliza tanto el costo para llegar a un nodo como una estimación del costo desde ese nodo hasta el destino, lo que garantiza una búsqueda más eficiente.\n\n
+¿Cómo Funciona?\n\n
+1. Comienza en el nodo de origen. Establece su costo (g-score) en 0 y calcula su f-score como g + heurística.\n
+2. Agrega el nodo de inicio a un conjunto abierto.\n
+3. Mientras el conjunto abierto no esté vacío, selecciona el nodo con el f-score más bajo.\n
+4. Si este nodo es el destino, se ha encontrado la ruta óptima.\n
+5. De lo contrario, elimina el nodo del conjunto abierto y márcalo como visitado.\n
+6. Para cada vecino, calcula un g-score tentativo. Si es menor que el g-score actual, actualízalo y establece el nodo actual como su padre. Agrega el vecino al conjunto abierto si aún no está presente.\n
+7. Repite hasta alcanzar el destino.\n\n
+Ejemplo de Código en Kotlin:\n\n
+fun aStar(start: Node, goal: Node): List<Node> {\n
+\u00A0\u00A0val openSet = PriorityQueue<Node>(compareBy { it.fScore })\n\n
+\u00A0\u00A0start.gScore = 0.0\n
+\u00A0\u00A0start.fScore = heuristic(start, goal)\n
+\u00A0\u00A0openSet.add(start)\n\n
+\u00A0\u00A0while (openSet.isNotEmpty()) {\n
+\u00A0\u00A0\u00A0\u00A0val current = openSet.poll()\n\n
+\u00A0\u00A0\u00A0\u00A0if (current == goal) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0return reconstructPath(current)\n
+\u00A0\u00A0\u00A0\u00A0}\n\n
+\u00A0\u00A0\u00A0\u00A0for (neighbor in current.neighbors) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0val tentativeGScore = current.gScore + distance(current, neighbor)\n\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0if (tentativeGScore < neighbor.gScore) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.parent = current\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.gScore = tentativeGScore\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.fScore = tentativeGScore + heuristic(neighbor, goal)\n\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0if (!openSet.contains(neighbor)) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0openSet.add(neighbor)\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0}\n
+\u00A0\u00A0\u00A0\u00A0}\n
+\u00A0\u00A0}\n\n
+\u00A0\u00A0return emptyList()\n
+}\n\n
+En este visualizador, cada nodo se muestra como un círculo con un número que indica el costo acumulado desde el origen. La progresión del algoritmo se muestra paso a paso, resaltando el nodo actual, los nodos visitados y la ruta óptima una vez encontrada.\n\n
+¡Disfruta aprendiendo y experimentando con el Algoritmo A*!
+]]></string>
+
+    <string name="results_title_astar">Resultados Detallados (A*)</string>
+    <string name="results_description_astar"><![CDATA[
+Cada círculo muestra dos números:\n
+• El número en el centro es el identificador del nodo.\n
+• El número debajo es el costo acumulado (la distancia mínima desde el origen).\n
+La línea en rojo indica la ruta óptima determinada por el algoritmo A*.
+]]></string>
+    <string name="results_footer_astar">La línea roja muestra el recorrido óptimo desde el origen hasta el destino.</string>
+
+
     <!-- ========================================================= -->
     <!-- NOMBRES DE ALGORITMOS                                   -->
     <!-- ========================================================= -->
@@ -230,7 +281,7 @@ Destino: %3$d
     <string name="selection_sort">Selection Sort</string>
     <string name="BFS">BFS en Grafos</string>
     <string name="dijkstra">Dijkstra</string>
-    <string name="quick_sort">Quick Sort</string>
+    <string name="astar">A*</string>
 
 
     <!-- ========================================================= -->

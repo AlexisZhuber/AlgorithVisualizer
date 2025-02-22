@@ -1,6 +1,5 @@
 package com.example.algorithmvisualizer.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,7 +33,7 @@ fun AlgorithmNavHost() {
         Screen.SelectionSort.route -> stringResource(id = R.string.selection_sort)
         Screen.BFS.route -> stringResource(id = R.string.BFS)
         Screen.Dijkstra.route -> stringResource(id = R.string.dijkstra)
-        Screen.QuickSort.route -> stringResource(id = R.string.quick_sort)
+        Screen.AStar.route -> stringResource(id = R.string.astar)
         else -> stringResource(id = R.string.app_name)
     }
 
@@ -88,7 +87,7 @@ fun AlgorithmNavHost() {
                 composable(Screen.SelectionSort.route) { SelectionSortScreen() }
                 composable(Screen.BFS.route) { BFSScreen() }
                 composable(Screen.Dijkstra.route) { DijkstraScreen() }
-                composable(Screen.QuickSort.route) { QuickSortScreen() }
+                composable(Screen.AStar.route) { AStarScreen() }
             }
         }
     }

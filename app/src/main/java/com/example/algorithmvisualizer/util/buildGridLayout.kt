@@ -4,15 +4,18 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Genera un layout para nodos utilizando dos círculos concéntricos.
+ * Generates a layout for nodes using two concentric circles.
  *
- * Los nodos se dividen en dos grupos: el círculo externo (radio [outerRadius]) y el círculo interno (radio [innerRadius]).
- * Las posiciones se devuelven en coordenadas normalizadas ([0,1]), centradas en (0.5, 0.5).
+ * The nodes are divided into two groups:
+ * - The outer circle uses a radius of [outerRadius].
+ * - The inner circle uses a radius of [innerRadius].
  *
- * @param size Número de nodos.
- * @param outerRadius Radio del círculo externo (por ejemplo, 0.45).
- * @param innerRadius Radio del círculo interno (por ejemplo, 0.25).
- * @return Lista de posiciones como Pair<Float, Float>.
+ * The resulting positions are normalized (i.e., within the range [0,1]) and centered at (0.5, 0.5).
+ *
+ * @param size The total number of nodes.
+ * @param outerRadius The radius for the outer circle (e.g., 0.45).
+ * @param innerRadius The radius for the inner circle (e.g., 0.25).
+ * @return A list of node positions represented as Pair<Float, Float>.
  */
 fun buildConcentricCircleLayout(
     size: Int,
@@ -20,15 +23,16 @@ fun buildConcentricCircleLayout(
     innerRadius: Float = 0.25f
 ): List<Pair<Float, Float>> {
     val positions = mutableListOf<Pair<Float, Float>>()
-    // Determina cuántos nodos se asignan al círculo externo.
+
+    // Determine the number of nodes to assign to the outer circle.
     val outerCount = if (size % 2 == 0) size / 2 else size / 2 + 1
     val innerCount = size - outerCount
 
-    // Centro fijo en (0.5, 0.5)
+    // Fixed center at (0.5, 0.5)
     val centerX = 0.5f
     val centerY = 0.5f
 
-    // Círculo externo: ángulos espaciados uniformemente.
+    // Generate positions for the outer circle using uniformly spaced angles.
     for (i in 0 until outerCount) {
         val angle = 2 * Math.PI * i / outerCount
         val x = centerX + outerRadius * cos(angle).toFloat()
@@ -36,12 +40,14 @@ fun buildConcentricCircleLayout(
         positions.add(x to y)
     }
 
-    // Círculo interno: ángulos espaciados uniformemente con un offset para mejor distribución.
+    // Generate positions for the inner circle.
+    // Angles are uniformly spaced with an additional offset for better distribution.
     for (i in 0 until innerCount) {
         val angle = 2 * Math.PI * i / innerCount + Math.PI / innerCount
         val x = centerX + innerRadius * cos(angle).toFloat()
         val y = centerY + innerRadius * sin(angle).toFloat()
         positions.add(x to y)
     }
+
     return positions
 }

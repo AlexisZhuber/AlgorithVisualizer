@@ -204,6 +204,7 @@ Each circle displays two numbers:\n\n
 The red line highlights the shortest route determined by Dijkstras algorithm.
     ]]>
     </string>
+    <string name="table_header_iterations">Iterations</string>
     <string name="table_header_node">Node</string>
     <string name="table_header_cost">Accumulated Cost</string>
     <string name="table_row_node">Node</string>
@@ -219,6 +220,58 @@ Destination: %3$d
     </string>
 
 
+    <!-- A*  -->
+    <string name="explanation_text_astar"><![CDATA[
+What is the A* Algorithm?\n\n
+A* (A-Star) Algorithm is a method used to find the optimal path between two nodes in a graph by using a heuristic to guide the search. Imagine you have a map and want to find the fastest route between two cities. A* uses both the cost to reach a node and an estimate of the cost from that node to the destination, ensuring a more efficient search.\n\n
+How Does It Work?\n\n
+1. Start at the origin node. Set its cost (g-score) to 0 and compute its f-score as g + heuristic.\n
+2. Add the starting node to an open set.\n
+3. While the open set is not empty, select the node with the lowest f-score.\n
+4. If this node is the destination, the optimal path has been found.\n
+5. Otherwise, remove the node from the open set and mark it as visited.\n
+6. For each neighbor, calculate a tentative g-score. If it is lower than the current g-score, update it and set the current node as its parent. Add the neighbor to the open set if not already present.\n
+7. Repeat until the destination is reached.\n\n
+Example Kotlin Code:\n\n
+fun aStar(start: Node, goal: Node): List<Node> {\n
+\u00A0\u00A0val openSet = PriorityQueue<Node>(compareBy { it.fScore })\n\n
+\u00A0\u00A0start.gScore = 0.0\n
+\u00A0\u00A0start.fScore = heuristic(start, goal)\n
+\u00A0\u00A0openSet.add(start)\n\n
+\u00A0\u00A0while (openSet.isNotEmpty()) {\n
+\u00A0\u00A0\u00A0\u00A0val current = openSet.poll()\n\n
+\u00A0\u00A0\u00A0\u00A0if (current == goal) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0return reconstructPath(current)\n
+\u00A0\u00A0\u00A0\u00A0}\n\n
+\u00A0\u00A0\u00A0\u00A0for (neighbor in current.neighbors) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0val tentativeGScore = current.gScore + distance(current, neighbor)\n\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0if (tentativeGScore < neighbor.gScore) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.parent = current\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.gScore = tentativeGScore\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0neighbor.fScore = tentativeGScore + heuristic(neighbor, goal)\n\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0if (!openSet.contains(neighbor)) {\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0openSet.add(neighbor)\n
+\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0}\n
+\u00A0\u00A0\u00A0\u00A0}\n
+\u00A0\u00A0}\n\n
+\u00A0\u00A0return emptyList()\n
+}\n\n
+In this visualizer, each node is displayed as a circle with a number indicating the accumulated cost from the origin. The algorithm’s progression is shown step-by-step, highlighting the current node, visited nodes, and the optimal path once found.\n\n
+Enjoy learning and experimenting with the A* Algorithm!
+]]></string>
+
+
+    <string name="results_title_astar">Detailed Results (A*)</string>
+    <string name="results_description_astar"><![CDATA[
+Each circle displays two numbers:\n
+• The number in the center is the node ID.\n
+• The number below is the accumulated cost (i.e., the shortest path cost from the origin).\n\n
+The red line highlights the optimal path determined by the A* algorithm.
+]]></string>
+
+    <string name="results_footer_astar">The red line shows the optimal path from the origin to the destination.</string>
+
+
     <!-- ========================================================= -->
     <!-- ALGORITHM NAMES                                         -->
     <!-- ========================================================= -->
@@ -226,7 +279,7 @@ Destination: %3$d
     <string name="selection_sort">Selection Sort</string>
     <string name="BFS">BFS in Graphs</string>
     <string name="dijkstra">Dijkstras</string>
-    <string name="quick_sort">Quick Sort</string>
+    <string name="astar">A*</string>
 
 
     <!-- ========================================================= -->
