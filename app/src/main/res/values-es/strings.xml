@@ -398,8 +398,8 @@ En un visualizador típico de un Algoritmo Genético, se muestra:\n
     <!-- ========================================================= -->
     <string name="bubble_sort">Bubble Sort Algorithm</string>
     <string name="selection_sort">Selection Sort Algorithm</string>
-    <string name="BFS">BFS en Grafos</string>
-    <string name="dijkstra">Dijkstra Algorithm</string>
+    <string name="BFS">BFS in Graphs</string>
+    <string name="dijkstra">Dijkstras Algorithm</string>
     <string name="astar">A* Algorithm</string>
     <string name="genetic">Genetic Algorithm</string>
 

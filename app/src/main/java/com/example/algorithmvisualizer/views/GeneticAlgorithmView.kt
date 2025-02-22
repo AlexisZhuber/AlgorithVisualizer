@@ -45,6 +45,7 @@ import com.example.algorithmvisualizer.algorithm.GeneticAlgorithmStep
 import com.example.algorithmvisualizer.ui.theme.BackgroundCard
 import com.example.algorithmvisualizer.ui.theme.LightGray
 import com.example.algorithmvisualizer.ui.theme.Primary
+import com.example.algorithmvisualizer.ui.theme.TextColor
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -118,8 +119,9 @@ fun GeneticAlgorithmView() {
             ) {
                 Text(
                     text = stringResource(id = R.string.explanation_text_ga),
+                    color = TextColor,
+                    // Use a larger font size with increased line height for readability.
                     style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Justify
                 )
             }
