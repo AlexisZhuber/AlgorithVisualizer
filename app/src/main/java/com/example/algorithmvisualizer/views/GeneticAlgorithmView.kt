@@ -43,6 +43,8 @@ import com.example.algorithmvisualizer.algorithm.generateGeneticAlgorithmSteps
 import com.example.algorithmvisualizer.algorithm.Individual
 import com.example.algorithmvisualizer.algorithm.GeneticAlgorithmStep
 import com.example.algorithmvisualizer.ui.theme.BackgroundCard
+import com.example.algorithmvisualizer.ui.theme.LightGray
+import com.example.algorithmvisualizer.ui.theme.Primary
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -448,9 +450,9 @@ fun GeneticAlgorithmView() {
                 },
                 valueRange = 0f..(steps.size - 1).toFloat(),
                 colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary,
-                    inactiveTrackColor = MaterialTheme.colorScheme.outline
+                    thumbColor = Primary,
+                    activeTrackColor = Primary,
+                    inactiveTrackColor = LightGray
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
