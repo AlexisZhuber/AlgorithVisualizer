@@ -6,4 +6,5 @@ sealed class Screen(val route: String) {
     object BFS : Screen("BFS")
     object Dijkstra : Screen("dijkstra")
     object AStar : Screen("astar")
+    object Genetic : Screen("genetic")
 }

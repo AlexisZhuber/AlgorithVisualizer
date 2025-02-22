@@ -274,14 +274,134 @@ La línea en rojo indica la ruta óptima determinada por el algoritmo A*.
     <string name="results_footer_astar">La línea roja muestra el recorrido óptimo desde el origen hasta el destino.</string>
 
 
+
+    <!-- Genetic Algorithm Explanation -->
+    <string name="explanation_text_ga"><![CDATA[
+¿Qué es un Algoritmo Genético?\n
+\n
+Un Algoritmo Genético (AG) es una técnica de optimización inspirada en la teoría de la evolución biológica de Charles Darwin. La idea central es que, así como las especies evolucionan para adaptarse mejor a su entorno, un conjunto de posibles soluciones (llamado población) puede evolucionar para resolver un problema de manera óptima o casi óptima.\n\n
+
+¿Para qué sirve?\n
+\n
+- Optimización de Funciones: Encontrar valores que maximicen o minimicen una función de costo.\n
+- Diseño e Ingeniería: Automatizar la búsqueda de parámetros en problemas complejos (por ejemplo, diseño de antenas).\n
+- Aprendizaje Automático: Ajustar hiperparámetros en modelos de IA o redes neuronales.\n
+- Resolución de Problemas Combinatorios: Hallar rutas óptimas (por ejemplo, en problemas de rutas de vehículos) o secuencias de producción en fábricas.\n\n
+
+¿Cómo Funciona?\n
+\n
+1. Población Inicial:\n
+   - Se generan aleatoriamente múltiples soluciones candidatas (individuos), cada una representada por un conjunto de parámetros (cromosomas).\n\n
+
+2. Evaluación (Fitness):\n
+   - Cada individuo se evalúa mediante una función de aptitud (fitness) que mide qué tan buena es su solución para el problema.\n\n
+
+3. Selección:\n
+   - Se eligen los mejores individuos (aquellos con mayor fitness) para que sean “padres” de la siguiente generación.\n\n
+
+4. Cruzamiento (Crossover):\n
+   - Se combinan los cromosomas de dos padres para crear uno o más “hijos” (nuevas soluciones) que heredan características de ambos padres.\n\n
+
+5. Mutación:\n
+   - Con cierta probabilidad, se realizan pequeños cambios aleatorios en los cromosomas de los hijos para introducir variabilidad y evitar estancamientos.\n\n
+
+6. Nueva Generación:\n
+   - Se forma una nueva población con los hijos generados y, opcionalmente, algunos individuos de la generación anterior. Luego, se repite el ciclo (evaluación, selección, cruzamiento, mutación) hasta cumplir un criterio de parada (por ejemplo, un número de generaciones o haber encontrado una solución suficientemente buena).\n\n
+
+Ventajas y Desventajas\n
+\n
+- Ventajas:\n
+   - No requieren derivadas o información adicional, solo una función de aptitud.\n
+   - Pueden escapar de óptimos locales gracias a la mutación y recombinación.\n
+   - Suelen ser fáciles de paralelizar (evaluar muchos individuos en paralelo).\n\n
+- Desventajas:\n
+   - Pueden requerir muchas evaluaciones de la función de aptitud, lo que a veces es costoso.\n
+   - No garantizan encontrar la solución óptima global en todos los casos.\n\n
+
+Ejemplo de Código en Kotlin\n
+\n
+fun runGeneticAlgorithm(\n
+    populationSize: Int,\n
+    generations: Int,\n
+    crossoverRate: Double,\n
+    mutationRate: Double\n
+): List<Individual> {\n
+    // Crear población inicial aleatoria\n
+    var population = List(populationSize) {\n
+        val x = Random.nextDouble() // cromosoma principal (ej: un valor en [0,1])\n
+        Individual(x, fitnessFunction(x))\n
+    }\n\n
+    for (gen in 1..generations) {\n
+        // Evaluar fitness\n
+        population = population.map {\n
+            val newFitness = fitnessFunction(it.x)\n
+            it.copy(fitness = newFitness)\n
+        }\n\n
+        // Selección de padres\n
+        val parents = selectBest(population)\n\n
+        // Cruce\n
+        val offspring = mutableListOf<Individual>()\n
+        while (offspring.size < population.size) {\n
+            val p1 = parents.random()\n
+            val p2 = parents.random()\n
+            val childX = if (Math.random() < crossoverRate) {\n
+                (p1.x + p2.x) / 2\n
+            } else {\n
+                p1.x\n
+            }\n\n
+            // Mutación\n
+            val mutatedX = if (Math.random() < mutationRate) {\n
+                childX + (Math.random() - 0.5) * 0.1\n
+            } else {\n
+                childX\n
+            }\n
+            offspring.add(Individual(mutatedX, fitnessFunction(mutatedX)))\n
+        }\n\n
+        // Nueva población\n
+        population = offspring\n
+    }\n\n
+    return population\n
+}\n\n
+
+En un visualizador típico de un Algoritmo Genético, se muestra:\n
+- La población actual con individuos representados por puntos o marcadores.\n
+- El valor de fitness de cada individuo.\n
+- La progresión de la aptitud máxima a lo largo de las generaciones.\n
+- Opcionalmente, la combinación (crossover) y mutaciones que dan lugar a la nueva generación.\n\n
+
+¿Por qué usar Algoritmos Genéticos?\n
+\n
+- Son muy flexibles y pueden aplicarse a problemas variados.\n
+- Mezclan conceptos de selección natural, lo que ayuda a “explorar” el espacio de soluciones y “explotar” las mejores encontradas.\n
+- Pueden descubrir soluciones novedosas o aproximaciones muy buenas en problemas donde otros métodos se estancan.\n\n
+
+¡Disfruta aprendiendo y experimentando con los Algoritmos Genéticos!
+]]></string>
+    <!-- Titles and Labels for Panels -->
+    <string name="ga_population_title">Población sobre la Función de Aptitud</string>
+    <string name="ga_distribution_title">Distribución de Individuos</string>
+    <string name="convergence_progress">Progreso de Convergencia</string>
+
+    <!-- Dynamic Stage Messages -->
+    <string name="ga_stage_start">¡Población inicial creada!</string>
+    <string name="ga_stage_exploring">Explorando diferentes soluciones</string>
+    <string name="ga_stage_improving">La población empieza a mejorar</string>
+    <string name="ga_stage_converging">¡Estamos casi en el óptimo!</string>
+
+    <!-- Generation and Fitness Labels -->
+    <string name="generation_label">Generación: %1$d</string>
+    <string name="best_fitness_label">Mejor Aptitud: %1$.2f</string>
+
+
     <!-- ========================================================= -->
     <!-- NOMBRES DE ALGORITMOS                                   -->
     <!-- ========================================================= -->
-    <string name="bubble_sort">Bubble Sort</string>
-    <string name="selection_sort">Selection Sort</string>
+    <string name="bubble_sort">Bubble Sort Algorithm</string>
+    <string name="selection_sort">Selection Sort Algorithm</string>
     <string name="BFS">BFS en Grafos</string>
-    <string name="dijkstra">Dijkstra</string>
-    <string name="astar">A*</string>
+    <string name="dijkstra">Dijkstra Algorithm</string>
+    <string name="astar">A* Algorithm</string>
+    <string name="genetic">Genetic Algorithm</string>
 
 
     <!-- ========================================================= -->

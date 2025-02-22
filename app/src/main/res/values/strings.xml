@@ -272,15 +272,134 @@ The red line highlights the optimal path determined by the A* algorithm.
     <string name="results_footer_astar">The red line shows the optimal path from the origin to the destination.</string>
 
 
+    <!-- Complete explanation of Genetic Algorithms in English -->
+    <string name="explanation_text_ga"><![CDATA[
+What is a Genetic Algorithm?\n\n
+
+A Genetic Algorithm (GA) is an optimization technique inspired by the principles of natural evolution as described by Charles Darwin. The central idea is that just as species evolve to better adapt to their environment, a set of candidate solutions (called a population) can evolve to solve a problem in an optimal or near-optimal way.
+\n\n
+What is it used for?\n\n
+
+- Function Optimization: Finding values that maximize or minimize a cost function.\n
+- Design and Engineering: Automating the search for optimal parameters in complex design problems (e.g., antenna design).\n
+- Machine Learning: Tuning hyperparameters in AI models or neural networks.\n
+- Combinatorial Problems: Discovering optimal routes (e.g., in vehicle routing problems) or production sequences in factories.\n\n
+
+How does it work?\n\n
+
+1. Initial Population:\n
+   - A set of candidate solutions (individuals) is generated randomly. Each individual is represented by a set of parameters (chromosomes).\n\n
+
+2. Evaluation (Fitness):\n
+   - Each individual is evaluated using a fitness function that measures how good its solution is for the problem at hand.\n\n
+
+3. Selection:\n
+   - The best individuals (those with higher fitness) are chosen to act as “parents” for the next generation.\n\n
+
+4. Crossover:\n
+   - The chromosomes of two parents are combined to produce one or more “offspring” (new solutions) that inherit characteristics from both parents.\n\n
+
+5. Mutation:\n
+   - With a certain probability, small random changes are made to the chromosomes of the offspring to introduce variability and prevent premature convergence.\n\n
+
+6. New Generation:\n
+   - A new population is formed from the offspring (and optionally some individuals from the previous generation). The cycle (evaluation, selection, crossover, mutation) is repeated until a stopping criterion is met (for example, a set number of generations or a solution that is “good enough” is found).\n
+
+Advantages and Disadvantages\n\n
+
+- Advantages:\n
+   - They do not require derivative information or additional problem-specific knowledge; only a fitness function is needed.\n
+   - They can escape local optima thanks to the introduction of mutation and recombination.\n
+   - They are often easy to parallelize (e.g., evaluating many individuals simultaneously).\n\n
+
+- Disadvantages:\n
+   - They may require many fitness evaluations, which can be computationally expensive.\n
+   - They do not always guarantee finding the absolute global optimum.\n\n
+
+Example Code in Kotlin\n\n
+
+fun runGeneticAlgorithm(\n
+    populationSize: Int,\n
+    generations: Int,\n
+    crossoverRate: Double,\n
+    mutationRate: Double\n
+): List<Individual> {\n
+    // Create an initial random population\n
+    var population = List(populationSize) {\n
+        val x = Random.nextDouble() // main chromosome (e.g., a value in [0,1])\n
+        Individual(x, fitnessFunction(x))\n
+    }\n
+    for (gen in 1..generations) {\n
+        // Evaluate fitness for each individual\n
+        population = population.map {\n
+            val newFitness = fitnessFunction(it.x)\n
+            it.copy(fitness = newFitness)\n
+        }\n
+        // Select parents based on fitness\n
+        val parents = selectBest(population)\n
+        // Crossover\n
+        val offspring = mutableListOf<Individual>()\n
+        while (offspring.size < population.size) {\n
+            val p1 = parents.random()\n
+            val p2 = parents.random()\n
+            val childX = if (Math.random() < crossoverRate) {\n
+                (p1.x + p2.x) / 2\n
+            } else {\n
+                p1.x\n
+            }\n
+            // Mutation\n
+            val mutatedX = if (Math.random() < mutationRate) {\n
+                childX + (Math.random() - 0.5) * 0.1\n
+            } else {\n
+                childX\n
+            }\n
+            offspring.add(Individual(mutatedX, fitnessFunction(mutatedX)))\n
+        }\n
+        // Form the new population\n
+        population = offspring\n
+    }\n
+    return population\n
+}\n\n
+
+In a typical Genetic Algorithm visualizer, you will see:\n
+- The current population represented by points or markers.\n
+- The fitness value of each individual.\n
+- The progression of the best fitness over generations.\n
+- Optionally, the effects of crossover and mutation that produce the next generation.\n\n
+
+Why use Genetic Algorithms?\n\n
+
+- They are very flexible and can be applied to a wide range of problems.\n
+- They combine the principles of natural selection (exploring the solution space) with exploitation of the best-found solutions.\n
+- They can discover novel or very good approximations for problems where other methods may get stuck.\n\n
+
+Enjoy learning and experimenting with Genetic Algorithms!\n
+]]></string>
+
+    <!-- Titles and Labels for Panels -->
+    <string name="ga_population_title">Population on Fitness Function</string>
+    <string name="ga_distribution_title">Distribution of Individuals</string>
+    <string name="convergence_progress">Convergence Progress</string>
+
+    <!-- Dynamic Stage Messages -->
+    <string name="ga_stage_start">Initial population created!</string>
+    <string name="ga_stage_exploring">Exploring different solutions</string>
+    <string name="ga_stage_improving">The population is starting to improve</string>
+    <string name="ga_stage_converging">We are close to the optimum!</string>
+
+    <!-- Generation and Fitness Labels -->
+    <string name="generation_label">Generation: %1$d</string>
+    <string name="best_fitness_label">Best Fitness: %1$.2f</string>
+
     <!-- ========================================================= -->
     <!-- ALGORITHM NAMES                                         -->
     <!-- ========================================================= -->
-    <string name="bubble_sort">Bubble Sort</string>
-    <string name="selection_sort">Selection Sort</string>
+    <string name="bubble_sort">Bubble Sort Algorithm</string>
+    <string name="selection_sort">Selection Sort Algorithm</string>
     <string name="BFS">BFS in Graphs</string>
-    <string name="dijkstra">Dijkstras</string>
-    <string name="astar">A*</string>
-
+    <string name="dijkstra">Dijkstras Algorithm</string>
+    <string name="astar">A* Algorithm</string>
+    <string name="genetic">Genetic Algorithm</string>
 
     <!-- ========================================================= -->
     <!-- CONTROL BUTTON LABELS                                   -->

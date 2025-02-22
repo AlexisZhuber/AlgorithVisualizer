@@ -5,6 +5,7 @@ import com.example.algorithmvisualizer.views.AStarView
 import com.example.algorithmvisualizer.views.BFSView
 import com.example.algorithmvisualizer.views.BubbleSortView
 import com.example.algorithmvisualizer.views.DijkstraView
+import com.example.algorithmvisualizer.views.GeneticAlgorithmView
 import com.example.algorithmvisualizer.views.SelectionSortView
 
 /**
@@ -60,4 +61,15 @@ fun DijkstraScreen() {
 fun AStarScreen() {
     // Render the AStarView Composable.
     AStarView()
+}
+
+/**
+ * AStarScreen is a Composable function that displays the A* algorithm visualization.
+ *
+ * This function acts as a navigation target for the A* algorithm view.
+ */
+@Composable
+fun GeneticScreen() {
+    // Render the AStarView Composable.
+    GeneticAlgorithmView()
 }

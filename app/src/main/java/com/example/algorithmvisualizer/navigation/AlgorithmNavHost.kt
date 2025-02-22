@@ -34,6 +34,7 @@ fun AlgorithmNavHost() {
         Screen.BFS.route -> stringResource(id = R.string.BFS)
         Screen.Dijkstra.route -> stringResource(id = R.string.dijkstra)
         Screen.AStar.route -> stringResource(id = R.string.astar)
+        Screen.Genetic.route -> stringResource(id = R.string.genetic)
         else -> stringResource(id = R.string.app_name)
     }
 
@@ -88,6 +89,7 @@ fun AlgorithmNavHost() {
                 composable(Screen.BFS.route) { BFSScreen() }
                 composable(Screen.Dijkstra.route) { DijkstraScreen() }
                 composable(Screen.AStar.route) { AStarScreen() }
+                composable(Screen.Genetic.route) { GeneticScreen() }
             }
         }
     }
