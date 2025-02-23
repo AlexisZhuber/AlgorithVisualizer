@@ -42,6 +42,9 @@ import com.example.algorithmvisualizer.algorithm.fitnessFunction
 import com.example.algorithmvisualizer.algorithm.generateGeneticAlgorithmSteps
 import com.example.algorithmvisualizer.algorithm.Individual
 import com.example.algorithmvisualizer.algorithm.GeneticAlgorithmStep
+import com.example.algorithmvisualizer.components.ExplanationCard
+import com.example.algorithmvisualizer.components.PlaybackControls
+import com.example.algorithmvisualizer.components.TimelineSlider
 import com.example.algorithmvisualizer.ui.theme.BackgroundCard
 import com.example.algorithmvisualizer.ui.theme.LightGray
 import com.example.algorithmvisualizer.ui.theme.Primary
@@ -67,7 +70,7 @@ fun GeneticAlgorithmView() {
     val populationSize = 50
     val totalGenerations = 20
 
-    // States for the genetic algorithm simulation.
+    // Genetic algorithm simulation state.
     val steps = remember { mutableStateListOf<GeneticAlgorithmStep>() }
     var currentStepIndex by remember { mutableStateOf(0) }
     var isPlaying by remember { mutableStateOf(false) }
@@ -104,28 +107,11 @@ fun GeneticAlgorithmView() {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // 1. Explanation Card.
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
-            shape = MaterialTheme.shapes.medium,
-            colors = CardDefaults.cardColors(containerColor = BackgroundCard)
-        ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.explanation_text_ga),
-                    color = TextColor,
-                    // Use a larger font size with increased line height for readability.
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                    textAlign = TextAlign.Justify
-                )
-            }
-        }
+        // 1. Explanation Card using a reusable component.
+        ExplanationCard(
+            explanationText = stringResource(id = R.string.explanation_text_ga),
+            cardHeight = 250.dp
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -134,7 +120,7 @@ fun GeneticAlgorithmView() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Panel 2A: Population on Fitness Function.
+            // Panel 2A: Population on the Fitness Function curve.
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -163,7 +149,7 @@ fun GeneticAlgorithmView() {
                         val effectiveWidth = canvasWidth - 2 * marginPx
                         val effectiveHeight = canvasHeight - 2 * marginPx
                         Canvas(modifier = Modifier.fillMaxSize()) {
-                            // Background grid.
+                            // Draw a background grid.
                             val gridColor = Color.LightGray.copy(alpha = 0.5f)
                             val numHorizontalLines = 5
                             val numVerticalLines = 5
@@ -222,7 +208,7 @@ fun GeneticAlgorithmView() {
                             drawPath(
                                 path = path,
                                 color = Color.Blue,
-                                style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
                             )
                             // Mark the optimum point.
                             val optimumX = marginPx + 0.5f * effectiveWidth
@@ -244,7 +230,7 @@ fun GeneticAlgorithmView() {
                             currentStep?.population?.forEach { individual ->
                                 val xPos = marginPx + individual.x * effectiveWidth
                                 val yPos = marginPx + (1 - individual.fitness) * effectiveHeight
-                                // Shadow for glow effect.
+                                // Draw a shadow for a glow effect.
                                 drawCircle(
                                     color = Color.Black.copy(alpha = 0.3f),
                                     center = Offset(xPos + 2, yPos + 2),
@@ -262,7 +248,7 @@ fun GeneticAlgorithmView() {
                     }
                 }
             }
-            // Panel 2B: Histogram of Individuals' x Distribution.
+            // Panel 2B: Histogram showing distribution.
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -322,7 +308,7 @@ fun GeneticAlgorithmView() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 3. Convergence Panel: Dynamic Explanation with Color Bar.
+        // 3. Convergence Panel: Dynamic explanation with a color bar.
         Text(
             text = stringResource(id = R.string.convergence_progress),
             style = MaterialTheme.typography.titleMedium,
@@ -345,7 +331,7 @@ fun GeneticAlgorithmView() {
                 val effectiveWidth = canvasWidth - 2 * marginPx
                 val effectiveHeight = canvasHeight - 2 * marginPx
 
-                // Draw a background grid.
+                // Draw background grid.
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val gridColor = Color.LightGray.copy(alpha = 0.5f)
                     val numHorizontalLines = 4
@@ -404,7 +390,7 @@ fun GeneticAlgorithmView() {
                     generation > 10 -> Pair(Color.Green, stringResource(id = R.string.ga_stage_converging))
                     else -> Pair(Color.White, "")
                 }
-                // Draw a semi-transparent colored rectangle at the top of the panel.
+                // Draw a semi-transparent colored rectangle at the top.
                 Canvas(modifier = Modifier.fillMaxWidth().height(30.dp)) {
                     drawRect(
                         color = barColor.copy(alpha = 0.5f),
@@ -412,7 +398,6 @@ fun GeneticAlgorithmView() {
                         size = Size(size.width, size.height)
                     )
                 }
-                // Display the dynamic text below the bar.
                 Text(
                     text = dynamicText,
                     style = MaterialTheme.typography.titleMedium,
@@ -442,65 +427,34 @@ fun GeneticAlgorithmView() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Slider for generation control.
+        // Reusable TimelineSlider for generation control.
         if (steps.isNotEmpty()) {
-            Slider(
-                value = currentStepIndex.toFloat(),
-                onValueChange = { newValue ->
+            TimelineSlider(
+                currentStep = currentStepIndex.toFloat(),
+                maxStep = (steps.size - 1).toFloat(),
+                onStepChange = { newValue ->
                     currentStepIndex = newValue.toInt().coerceIn(0, steps.lastIndex)
                     isPlaying = false
-                },
-                valueRange = 0f..(steps.size - 1).toFloat(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Primary,
-                    activeTrackColor = Primary,
-                    inactiveTrackColor = LightGray
-                ),
-                modifier = Modifier.fillMaxWidth()
+                }
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Playback controls.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(onClick = { isPlaying = !isPlaying }) {
-                Icon(
-                    painter = painterResource(id = if (isPlaying) R.drawable.pause else R.drawable.play),
-                    contentDescription = stringResource(id = if (isPlaying) R.string.pause else R.string.play),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            IconButton(onClick = {
+        // PlaybackControls.
+        PlaybackControls(
+            isPlaying = isPlaying,
+            onPlayPauseToggle = { isPlaying = !isPlaying },
+            onPrevious = {
                 currentStepIndex = (currentStepIndex - 1).coerceAtLeast(0)
                 isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_previous),
-                    contentDescription = stringResource(id = R.string.previous),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            IconButton(onClick = {
+            },
+            onNext = {
                 currentStepIndex = (currentStepIndex + 1).coerceAtMost(steps.lastIndex)
                 isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_next),
-                    contentDescription = stringResource(id = R.string.next),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            IconButton(onClick = { resetSimulation() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.refresh),
-                    contentDescription = stringResource(id = R.string.reset),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
+            },
+            onReset = { resetSimulation() }
+        )
+
     }
 }

@@ -18,20 +18,20 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.algorithmvisualizer.R
 import com.example.algorithmvisualizer.algorithm.DijkstraGraphStep
 import com.example.algorithmvisualizer.algorithm.WeightedEdge
 import com.example.algorithmvisualizer.algorithm.buildNearbyWeightedAdjacency
 import com.example.algorithmvisualizer.algorithm.generateDijkstraSteps
+import com.example.algorithmvisualizer.components.ExplanationCard
+import com.example.algorithmvisualizer.components.PlaybackControls
+import com.example.algorithmvisualizer.components.TimelineSlider
 import com.example.algorithmvisualizer.ui.theme.*
 import com.example.algorithmvisualizer.util.buildConcentricCircleLayout
 import kotlinx.coroutines.delay
-import kotlin.math.abs
 import kotlin.random.Random
 
 /**
@@ -52,22 +52,21 @@ import kotlin.random.Random
 fun DijkstraView() {
     val nodeCount = 20
 
-    // Graph states.
+    // Graph state.
     var startNode by remember { mutableStateOf(0) }
     var endNode by remember { mutableStateOf(0) }
     val adjacencyState = remember { mutableStateListOf<List<WeightedEdge>>() }
     val nodePositionsState = remember { mutableStateListOf<Pair<Float, Float>>() }
 
-    // Dijkstra states.
+    // Dijkstra visualization state.
     val dijkstraSteps = remember { mutableStateListOf<DijkstraGraphStep>() }
     var currentStepIndex by remember { mutableStateOf(0) }
     var isPlaying by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
-    // Maximum connection distance (normalized). Change this to adjust node connectivity.
+    // Maximum normalized connection distance.
     val connectionDistance = 0.35f
 
-    // Check connectivity between two nodes (using DFS).
+    // Helper function to check connectivity between two nodes using DFS.
     fun isConnected(adjacency: List<List<WeightedEdge>>, start: Int, end: Int): Boolean {
         val visited = MutableList(adjacency.size) { false }
         fun dfs(node: Int) {
@@ -80,20 +79,18 @@ fun DijkstraView() {
         return visited[end]
     }
 
-    // Reset visualization.
+    // Reset function: generate a new layout, graph, and Dijkstra steps.
     fun resetAll() {
         var adjacency: List<MutableList<WeightedEdge>>
         do {
-            // Generate layout with increased separation.
             val positions = buildConcentricCircleLayout(
                 size = nodeCount,
-                outerRadius = 0.5f,  // Modify for outer circle separation.
-                innerRadius = 0.3f   // Modify for inner circle separation.
+                outerRadius = 0.5f,
+                innerRadius = 0.3f
             )
             nodePositionsState.clear()
             nodePositionsState.addAll(positions)
 
-            // Generate deterministic connections for nodes within connectionDistance.
             adjacency = buildNearbyWeightedAdjacency(positions, maxDistance = connectionDistance)
             startNode = Random.nextInt(nodeCount)
             endNode = Random.nextInt(nodeCount)
@@ -137,56 +134,30 @@ fun DijkstraView() {
         )
     } ?: emptyList()
 
-    // Animate stroke width for edges on the best route.
     val animatedBestStrokeWidth by animateFloatAsState(
         targetValue = if (currentStep?.pathEdges?.isNotEmpty() == true) 6f else 4f,
         animationSpec = tween(durationMillis = 600)
     )
 
-    // Main UI.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Explanation card.
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = BackgroundCard
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.explanation_text_dijkstra),
-                    color = TextColor,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                    textAlign = TextAlign.Justify
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(id = R.string.graph_info, nodeCount, startNode, endNode),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DarkGray
-                )
-            }
-        }
-
+        // Explanation card (reusable component).
+        ExplanationCard(
+            explanationText = stringResource(id = R.string.explanation_text_dijkstra) +
+                    "\n" + stringResource(id = R.string.graph_info, nodeCount, startNode, endNode),
+            cardHeight = 350.dp
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         // Drawing area.
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(600.dp)  // Height of drawing box.
+                .height(600.dp)
                 .border(width = 2.dp, color = LightGray),
             shape = RoundedCornerShape(12.dp),
             color = White
@@ -198,33 +169,21 @@ fun DijkstraView() {
                 val density = LocalDensity.current
                 val boxWidthPx = with(density) { maxWidth.toPx() }
                 val boxHeightPx = with(density) { maxHeight.toPx() }
-                // Define separate horizontal and vertical margins.
-                // To change the margins, modify these fractions.
-                val horizontalMarginFraction = 0.06f  // 6% of width on each side.
-                val verticalMarginFraction = 0.09f    // 9% of height on top and bottom.
-                val horizontalMarginPx = boxWidthPx * horizontalMarginFraction
-                val verticalMarginPx = boxHeightPx * verticalMarginFraction
-
+                val horizontalMarginPx = boxWidthPx * 0.06f
+                val verticalMarginPx = boxHeightPx * 0.09f
                 val effectiveWidth = boxWidthPx - 2 * horizontalMarginPx
                 val effectiveHeight = boxHeightPx - 2 * verticalMarginPx
 
-                // Map normalized positions [0,1] to the effective drawing area.
                 val nodePositions = if (nodePositionsState.size == nodeCount) {
                     nodePositionsState.map { (x, y) ->
-                        Offset(
-                            horizontalMarginPx + x * effectiveWidth,
-                            verticalMarginPx + y * effectiveHeight
-                        )
+                        Offset(horizontalMarginPx + x * effectiveWidth, verticalMarginPx + y * effectiveHeight)
                     }
-                } else {
-                    emptyList()
-                }
-                // Definir los textos para origen y destino antes del Canvas:
+                } else emptyList()
+
                 val originLabel = stringResource(id = R.string.origin_label)
                 val destinationLabel = stringResource(id = R.string.destination_label)
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     if (nodePositions.size == nodeCount && adjacencyState.size == nodeCount) {
-                        // Build set of edges that form the best route.
                         val pathEdgeSet = currentStep?.pathEdges?.map {
                             if (it.first < it.second) it else Pair(it.second, it.first)
                         }?.toSet() ?: emptySet()
@@ -244,28 +203,17 @@ fun DijkstraView() {
                                     end = endPos,
                                     strokeWidth = strokeWidth
                                 )
-
-                                // Compute midpoint to draw weight.
-                                val midPoint = Offset(
-                                    (startPos.x + endPos.x) / 2f,
-                                    (startPos.y + endPos.y) / 2f
-                                )
+                                val midPoint = Offset((startPos.x + endPos.x) / 2f, (startPos.y + endPos.y) / 2f)
                                 val dx = endPos.x - startPos.x
                                 val dy = endPos.y - startPos.y
                                 val length = kotlin.math.sqrt(dx * dx + dy * dy)
                                 val offsetDistance = boxWidthPx * 0.02f
-
-                                // Calculate a unit perpendicular vector.
                                 var perpX = if (length != 0f) -dy / length else 0f
                                 var perpY = if (length != 0f) dx / length else 0f
-
-                                // Optionally, adjust the perpendicular direction so the text is always above the line.
-                                // For example, ensure that the y-component is negative.
                                 if (perpY > 0) {
                                     perpX = -perpX
                                     perpY = -perpY
                                 }
-
                                 val finalX = midPoint.x + perpX * offsetDistance
                                 val finalY = midPoint.y + perpY * offsetDistance
 
@@ -276,12 +224,7 @@ fun DijkstraView() {
                                             textSize = boxWidthPx * 0.03f
                                             textAlign = android.graphics.Paint.Align.CENTER
                                         }
-                                        canvas.nativeCanvas.drawText(
-                                            edge.weight.toString(),
-                                            finalX,
-                                            finalY,
-                                            paint
-                                        )
+                                        canvas.nativeCanvas.drawText(edge.weight.toString(), finalX, finalY, paint)
                                     }
                                 }
                             }
@@ -293,8 +236,6 @@ fun DijkstraView() {
                             currentStep.visited.forEachIndexed { i, _ ->
                                 val nodeCenter = nodePositions[i]
                                 val animatedColor = colorStates[i].value
-
-                                // Draw "glow" around current node.
                                 if (i == currentStep.currentNode) {
                                     drawCircle(
                                         color = Yellow.copy(alpha = 0.5f),
@@ -302,51 +243,29 @@ fun DijkstraView() {
                                         radius = nodeRadius * 1.3f
                                     )
                                 }
-                                // Draw node filled.
-                                drawCircle(
-                                    color = animatedColor,
-                                    center = nodeCenter,
-                                    radius = nodeRadius
-                                )
-                                // Draw node border.
+                                drawCircle(color = animatedColor, center = nodeCenter, radius = nodeRadius)
                                 drawCircle(
                                     color = DarkGray,
                                     center = nodeCenter,
                                     radius = nodeRadius,
                                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                                 )
-
-                                // Draw the node's ID and its accumulated cost.
                                 drawIntoCanvas { canvas ->
                                     val indexPaint = android.graphics.Paint().apply {
                                         color = White.toArgb()
                                         textSize = nodeRadius * 0.9f
                                         textAlign = android.graphics.Paint.Align.CENTER
                                     }
+                                    canvas.nativeCanvas.drawText(i.toString(), nodeCenter.x, nodeCenter.y - (nodeRadius * 0.09f), indexPaint)
+                                    val d = currentStep.distances[i]
+                                    val costText = if (d == Int.MAX_VALUE) "∞" else d.toString()
                                     val costPaint = android.graphics.Paint().apply {
                                         color = White.toArgb()
                                         textSize = nodeRadius * 0.6f
                                         textAlign = android.graphics.Paint.Align.CENTER
                                     }
-                                    // Number inside the circle represents the node ID.
-                                    canvas.nativeCanvas.drawText(
-                                        i.toString(),
-                                        nodeCenter.x,
-                                        nodeCenter.y - (nodeRadius * 0.09f),
-                                        indexPaint
-                                    )
-                                    // Number below the node represents the accumulated cost (shortest distance from the origin).
-                                    val d = currentStep.distances[i]
-                                    val costText = if (d == Int.MAX_VALUE) "∞" else d.toString()
-                                    canvas.nativeCanvas.drawText(
-                                        costText,
-                                        nodeCenter.x,
-                                        nodeCenter.y + (nodeRadius * 0.8f),
-                                        costPaint
-                                    )
+                                    canvas.nativeCanvas.drawText(costText, nodeCenter.x, nodeCenter.y + (nodeRadius * 0.8f), costPaint)
                                 }
-
-                                // Draw labels for origin and destination.
                                 if (i == startNode) {
                                     drawIntoCanvas { canvas ->
                                         val labelPaint = android.graphics.Paint().apply {
@@ -354,13 +273,7 @@ fun DijkstraView() {
                                             textSize = nodeRadius * 0.6f
                                             textAlign = android.graphics.Paint.Align.CENTER
                                         }
-                                        // Label "ORIGEN" for the starting node.
-                                        canvas.nativeCanvas.drawText(
-                                            originLabel,
-                                            nodeCenter.x,
-                                            nodeCenter.y - nodeRadius - labelPaint.textSize,
-                                            labelPaint
-                                        )
+                                        canvas.nativeCanvas.drawText(originLabel, nodeCenter.x, nodeCenter.y - nodeRadius - labelPaint.textSize, labelPaint)
                                     }
                                 } else if (i == endNode) {
                                     drawIntoCanvas { canvas ->
@@ -369,13 +282,7 @@ fun DijkstraView() {
                                             textSize = nodeRadius * 0.6f
                                             textAlign = android.graphics.Paint.Align.CENTER
                                         }
-                                        // Label "DESTINO" for the destination node.
-                                        canvas.nativeCanvas.drawText(
-                                            destinationLabel,
-                                            nodeCenter.x,
-                                            nodeCenter.y + nodeRadius + labelPaint.textSize * 1.2f,
-                                            labelPaint
-                                        )
+                                        canvas.nativeCanvas.drawText(destinationLabel, nodeCenter.x, nodeCenter.y + nodeRadius + labelPaint.textSize * 1.2f, labelPaint)
                                     }
                                 }
                             }
@@ -387,78 +294,46 @@ fun DijkstraView() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Slider for animation control.
+        // Reusable TimelineSlider component.
         if (dijkstraSteps.isNotEmpty()) {
-            Slider(
-                value = currentStepIndex.toFloat(),
-                onValueChange = { newValue ->
+            TimelineSlider(
+                currentStep = currentStepIndex.toFloat(),
+                maxStep = (dijkstraSteps.size - 1).toFloat(),
+                onStepChange = { newValue ->
                     currentStepIndex = newValue.toInt().coerceIn(0, dijkstraSteps.lastIndex)
                     isPlaying = false
-                },
-                valueRange = 0f..(dijkstraSteps.size - 1).toFloat(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Primary,
-                    activeTrackColor = Primary,
-                    inactiveTrackColor = LightGray
-                ),
-                modifier = Modifier.fillMaxWidth()
+                }
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Playback controls.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(onClick = { isPlaying = !isPlaying }) {
-                Icon(
-                    painter = painterResource(id = if (isPlaying) R.drawable.pause else R.drawable.play),
-                    contentDescription = stringResource(id = if (isPlaying) R.string.pause else R.string.play),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = {
-                currentStepIndex = (currentStepIndex - 1).coerceAtLeast(0)
-                isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_previous),
-                    contentDescription = stringResource(id = R.string.previous),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = {
-                currentStepIndex = (currentStepIndex + 1).coerceAtMost(dijkstraSteps.lastIndex)
-                isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_next),
-                    contentDescription = stringResource(id = R.string.next),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = { resetAll() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.refresh),
-                    contentDescription = stringResource(id = R.string.reset),
-                    tint = Primary
-                )
-            }
+        // Reusable PlaybackControls component.
+        if (dijkstraSteps.isNotEmpty()) {
+            PlaybackControls(
+                isPlaying = isPlaying,
+                onPlayPauseToggle = { isPlaying = !isPlaying },
+                onPrevious = {
+                    currentStepIndex = (currentStepIndex - 1).coerceAtLeast(0)
+                    isPlaying = false
+                },
+                onNext = {
+                    currentStepIndex = (currentStepIndex + 1).coerceAtMost(dijkstraSteps.lastIndex)
+                    isPlaying = false
+                },
+                onReset = { resetAll() }
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Final results card with detailed explanation.
+        // Final results card.
         if (currentStepIndex == dijkstraSteps.lastIndex && dijkstraSteps.isNotEmpty()) {
             val finalStep = dijkstraSteps.last()
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = BackgroundCard
-                )
+                colors = CardDefaults.cardColors(containerColor = BackgroundCard)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -506,7 +381,6 @@ fun DijkstraView() {
                             )
                         }
                     }
-                    // Se agrega una fila para mostrar la cantidad de iteraciones, si está disponible.
                     Divider(color = DarkGray, thickness = 1.dp)
                     finalStep.iterationCount?.let { iterations ->
                         Spacer(modifier = Modifier.height(8.dp))

@@ -17,15 +17,15 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.algorithmvisualizer.R
 import com.example.algorithmvisualizer.algorithm.BFSGraphStep
 import com.example.algorithmvisualizer.algorithm.buildRandomAdjacency
 import com.example.algorithmvisualizer.algorithm.generateBFSSteps
+import com.example.algorithmvisualizer.components.ExplanationCard
+import com.example.algorithmvisualizer.components.PlaybackControls
+import com.example.algorithmvisualizer.components.TimelineSlider
 import com.example.algorithmvisualizer.ui.theme.*
 import com.example.algorithmvisualizer.util.buildConcentricCircleLayout
 import kotlinx.coroutines.delay
@@ -56,18 +56,13 @@ fun BFSView() {
     var currentStepIndex by remember { mutableStateOf(0) }
     var isPlaying by remember { mutableStateOf(false) }
 
-    /**
-     * Resets the visualization by:
-     * 1. Generating a new node layout using a concentric circle layout.
-     * 2. Creating a new random graph with at most 2 connections per node.
-     * 3. Running BFS from the start node and recording each step.
-     */
+    // Reset function to generate new node positions, graph connectivity, and BFS steps.
     fun resetAll() {
-        // Create a node layout using a concentric circle layout (normalized positions).
+        // Generate a node layout using a concentric circle layout (normalized positions).
         val positions = buildConcentricCircleLayout(
             size = nodeCount,
-            outerRadius = 0.5f, // Adjust outer circle separation if needed.
-            innerRadius = 0.3f  // Adjust inner circle separation if needed.
+            outerRadius = 0.5f,
+            innerRadius = 0.3f
         )
         nodePositionsState.clear()
         nodePositionsState.addAll(positions)
@@ -85,7 +80,7 @@ fun BFSView() {
         isPlaying = false
     }
 
-    // Restart the visualization when the composable is first launched.
+    // Launch reset on first composition.
     LaunchedEffect(Unit) { resetAll() }
     // Auto-play effect for the BFS animation.
     LaunchedEffect(isPlaying, currentStepIndex) {
@@ -101,11 +96,7 @@ fun BFSView() {
 
     // Get the current BFS step.
     val currentStep = bfsSteps.getOrNull(currentStepIndex)
-
-    // Animate node colors based on their state:
-    // - Current node: use Secondary color (with glow effect)
-    // - Visited nodes: use Primary color
-    // - Unvisited nodes: use LightGray color
+    // Animate node colors based on their state.
     val colorStates = currentStep?.visited?.mapIndexed { i, visited ->
         val targetColor = when {
             i == currentStep.currentNode -> Secondary
@@ -124,33 +115,12 @@ fun BFSView() {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Explanation card that displays the BFS description and graph information.
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = BackgroundCard)
-        ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.explanation_text_bfs),
-                    color = TextColor,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                    textAlign = TextAlign.Justify
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(id = R.string.graph_info_bfs, nodeCount, startNode),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DarkGray
-                )
-            }
-        }
+        // Reusable ExplanationCard displaying the BFS description and graph info.
+        ExplanationCard(
+            explanationText = stringResource(id = R.string.explanation_text_bfs) +
+                    "\n" + stringResource(id = R.string.graph_info_bfs, nodeCount, startNode),
+            cardHeight = 350.dp
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -171,10 +141,8 @@ fun BFSView() {
                 val boxWidthPx = with(density) { maxWidth.toPx() }
                 val boxHeightPx = with(density) { maxHeight.toPx() }
                 // Define margins as fractions of the drawing area.
-                val horizontalMarginFraction = 0.1f
-                val verticalMarginFraction = 0.09f
-                val horizontalMarginPx = boxWidthPx * horizontalMarginFraction
-                val verticalMarginPx = boxHeightPx * verticalMarginFraction
+                val horizontalMarginPx = boxWidthPx * 0.1f
+                val verticalMarginPx = boxHeightPx * 0.09f
                 val effectiveWidth = boxWidthPx - 2 * horizontalMarginPx
                 val effectiveHeight = boxHeightPx - 2 * verticalMarginPx
 
@@ -185,7 +153,7 @@ fun BFSView() {
                     }
                 } else emptyList()
 
-                // Retrieve the label for the origin from string resources.
+                // Retrieve the label for the origin.
                 val originLabel = stringResource(id = R.string.origin_label)
                 // Draw the graph.
                 Canvas(modifier = Modifier.fillMaxSize()) {
@@ -212,7 +180,7 @@ fun BFSView() {
                                 val nodeCenter = nodePositions[i]
                                 val animatedColor = colorStates[i].value
 
-                                // If this node is the current node, draw a glow effect.
+                                // Draw glow for the current node.
                                 if (i == currentStep.currentNode) {
                                     drawCircle(
                                         color = Secondary.copy(alpha = 0.5f),
@@ -220,20 +188,16 @@ fun BFSView() {
                                         radius = nodeRadius * 1.3f
                                     )
                                 }
-                                // Draw the node circle.
-                                drawCircle(
-                                    color = animatedColor,
-                                    center = nodeCenter,
-                                    radius = nodeRadius
-                                )
-                                // Draw node border.
+                                // Draw node circle and border.
+                                drawCircle(color = animatedColor, center = nodeCenter, radius = nodeRadius)
                                 drawCircle(
                                     color = DarkGray,
                                     center = nodeCenter,
                                     radius = nodeRadius,
                                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                                 )
-                                // Draw the node's ID inside the circle and the visit order (if available) below the node.
+
+                                // Draw node ID and visit order.
                                 drawIntoCanvas { canvas ->
                                     val indexPaint = android.graphics.Paint().apply {
                                         color = White.toArgb()
@@ -260,7 +224,7 @@ fun BFSView() {
                                         orderPaint
                                     )
                                 }
-                                // Label the starting node with "ORIGIN" from the string resource.
+                                // Label the starting node.
                                 if (i == startNode) {
                                     drawIntoCanvas { canvas ->
                                         val labelPaint = android.graphics.Paint().apply {
@@ -285,73 +249,40 @@ fun BFSView() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Slider to control the animation timeline.
+        // Render TimelineSlider only if steps are available.
         if (bfsSteps.isNotEmpty()) {
-            Slider(
-                value = currentStepIndex.toFloat(),
-                onValueChange = { newValue ->
+            TimelineSlider(
+                currentStep = currentStepIndex.toFloat(),
+                maxStep = (bfsSteps.size - 1).toFloat(),
+                onStepChange = { newValue ->
                     currentStepIndex = newValue.toInt().coerceIn(0, bfsSteps.lastIndex)
                     isPlaying = false
-                },
-                valueRange = 0f..(bfsSteps.size - 1).toFloat(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Primary,
-                    activeTrackColor = Primary,
-                    inactiveTrackColor = LightGray
-                ),
-                modifier = Modifier.fillMaxWidth()
+                }
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Playback controls: Play/Pause, Previous, Next, and Reset.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(onClick = { isPlaying = !isPlaying }) {
-                Icon(
-                    painter = painterResource(id = if (isPlaying) R.drawable.pause else R.drawable.play),
-                    contentDescription = stringResource(id = if (isPlaying) R.string.pause else R.string.play),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = {
-                currentStepIndex = (currentStepIndex - 1).coerceAtLeast(0)
-                isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_previous),
-                    contentDescription = stringResource(id = R.string.previous),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = {
-                currentStepIndex = (currentStepIndex + 1).coerceAtMost(bfsSteps.lastIndex)
-                isPlaying = false
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.skip_next),
-                    contentDescription = stringResource(id = R.string.next),
-                    tint = Primary
-                )
-            }
-            IconButton(onClick = {
-                isPlaying = false
-                resetAll()
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.refresh),
-                    contentDescription = stringResource(id = R.string.reset),
-                    tint = Primary
-                )
-            }
+        // Render PlaybackControls if steps are available.
+        if (bfsSteps.isNotEmpty()) {
+            PlaybackControls(
+                isPlaying = isPlaying,
+                onPlayPauseToggle = { isPlaying = !isPlaying },
+                onPrevious = {
+                    currentStepIndex = (currentStepIndex - 1).coerceAtLeast(0)
+                    isPlaying = false
+                },
+                onNext = {
+                    currentStepIndex = (currentStepIndex + 1).coerceAtMost(bfsSteps.lastIndex)
+                    isPlaying = false
+                },
+                onReset = { resetAll() }
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Final results card that displays the BFS results.
+        // Final results card: displays the BFS visit order.
         if (currentStepIndex == bfsSteps.lastIndex && bfsSteps.isNotEmpty()) {
             val finalStep = bfsSteps.last()
             val orderString = finalStep.visitOrder.joinToString(separator = ", ")
