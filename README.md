@@ -35,7 +35,7 @@ Algorithm Visualizer is an Android application designed to provide interactive, 
 ## Installation & Setup
 1. **Clone the Repository:**  
    ```bash
-   git clone https://github.com/yourusername/AlgorithmVisualizer.git
+   git clone https://github.com/AlexisZhuber/AlgorithmVisualizer.git
 
 ## Screenshots
 
